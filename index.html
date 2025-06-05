@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interactivo con Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.min.css" />
+    <style>
+        #map { height: 100vh; z-index: 0; } /* El mapa ocupa toda la altura */
+        .search-container { padding: 10px; background-color: white; }
+        input[type="text"] { padding: 5px; width: 200px; }
+        button { padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+
+        /* Estilos para la ventana modal */
+        .modal {
+            display: none; /* Oculta la ventana modal por defecto */
+            position: fixed;
+            z-index: 1000; /* Asegura que la ventana modal esté por encima del mapa */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0); /* Fondo negro */
+            background-color: rgba(0,0,0,0.4); /* Fondo con opacidad */
+            padding-top: 60px;
+        }
+
+        /* Estilo del contenido de la modal */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Puedes ajustar el tamaño aquí */
+        }
+
+        /* El botón de cerrar */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contenedor de búsqueda -->
+    <div class="search-container">
+        <label for="search-input">Buscar Sección:</label>
+        <input type="text" id="search-input" placeholder="Escribe un número de sección">
+        <button id="search-button">Buscar</button>
+    </div>
+
+    <!-- El Mapa -->
+    <div id="map"></div>
+
+    <!-- La ventana Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Datos de la Sección</h2>
+            <table id="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Sección</th>
+                        <th>Distrito Federal</th>
+                        <th>Distrito Local</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body">
+                    <!-- Los datos de la tabla se agregarán aquí dinámicamente -->
+                </tbody>
+            </table>
+            <div id="grafica-container">
+                <!-- Las gráficas se mostrarán aquí al hacer clic en el botón -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
+    <script>
+        var map = L.map('map').setView([21.12193386462125, -101.68273561478725], 13); // Coordenadas de Leon
+
+        // Capa base de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Cargar el archivo GeoJSON desde GitHub
+            fetch('https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/AT_Leon.geojson')
+            .then(response => response.json())
+            .then(data => {
+                // Crear la capa GeoJSON
+                var geoJsonLayer = L.geoJSON(data, {
+                    onEachFeature: function (feature, layer) {
+                        if (feature.properties) {
+                            layer.on('click', function () {
+                                // Mostrar la ventana modal
+                                var modal = document.getElementById("myModal");
+                                var span = document.getElementsByClassName("close")[0];
+                                modal.style.display = "block"; // Mostrar la ventana modal
+
+                                // Agregar los datos a la tabla
+                                var tablaBody = document.getElementById('tabla-body');
+                                var fila = document.createElement('tr');
+                                fila.innerHTML = "<td>" + feature.properties.SECCION + "</td>" +
+                                                 "<td>" + feature.properties.DISTRITO_F + "</td>" +
+                                                 "<td>" + feature.properties.DISTRITO_L + "</td>";
+                                tablaBody.appendChild(fila);
+
+                                // Agregar un enlace para mostrar las gráficas
+                                var graficaContainer = document.getElementById("grafica-container");
+                                graficaContainer.innerHTML = "<br><button onclick='showGraphs(\"" + feature.properties.SECCION + "\")'>Mostrar Gráficas</button>";
+                            });
+                        }
+                    }
+                }).addTo(map);
+
+                // Función para buscar y resaltar el polígono
+                document.getElementById('search-button').addEventListener('click', function() {
+                    var searchTerm = document.getElementById('search-input').value; // Número de sección
+
+                    // Buscar la sección en los datos del GeoJSON
+                    var foundFeature = null;
+                    geoJsonLayer.eachLayer(function(layer) {
+                        if (layer.feature.properties.SECCION == searchTerm) {
+                            foundFeature = layer;
+                        }
+                    });
+
+                    if (foundFeature) {
+                        // Resaltar el polígono
+                        foundFeature.setStyle({ color: 'red', weight: 5, fillColor: '#f03', fillOpacity: 0.3 });
+
+                        // Hacer zoom en el polígono
+                        map.setView(foundFeature.getBounds().getCenter(), 14);
+
+                        // Mostrar popup
+                        foundFeature.openPopup();
+                    } else {
+                        alert('No se encontró la sección con el número ' + searchTerm);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar el GeoJSON:', error);
+            });
+
+        // Función para mostrar las 4 gráficas y sus explicaciones en dos columnas
+window.showGraphs = function (seccion) {
+    var graficaContainer = document.getElementById("grafica-container");
+
+    // Limpiar el contenedor de las gráficas
+    graficaContainer.innerHTML = "";
+
+    // Crear un contenedor general para las 4 gráficas y sus explicaciones
+    var container = document.createElement("div");
+    container.style.display = "grid";
+    container.style.gridTemplateColumns = "1fr 1fr"; // Dos columnas
+    container.style.gap = "20px"; // Espacio entre las columnas
+
+    // Gráfica de Historial
+    var graficaHistorial = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpete/graficas_historial/historial_" + seccion + ".png' width='300'><br>";
+    var textoHistorial = "<p><strong>Explicación Historial:</strong> Este gráfico muestra los resultados de las elecciones de los tres principales partidos: PAN, PRI y MORENA en las elecciones de 2018, 2021 y 2024.</p></div>";
+    container.innerHTML += graficaHistorial + textoHistorial;
+
+    // Gráfica de Competencia
+    var graficaCompetencia = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/competencia_" + seccion + ".png' width='300'><br>";
+    var textoCompetencia = "<p><strong>Explicación Competencia:</strong> La competitividad electoral refleja lo parejo de la contienda: si la diferencia de votos entre el primer y segundo lugar fue pequeña en una sección, decimos que hubo alta competencia allí..</p></div>";
+    container.innerHTML += graficaCompetencia + textoCompetencia;
+
+    // Gráfica de Ganadores
+    var graficaGanadores = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_ganadores/ganadores_" + seccion + ".png' width='300'><br>";
+    var textoGanadores = "<p><strong>Explicación Ganadores:</strong> Este gráfico muestra los ganadores de cada elección en las distintas secciones a través de las elecciones de 2018, 2021 y 2024.</p></div>";
+    container.innerHTML += graficaGanadores + textoGanadores;
+
+    // Gráfica de Proyección
+    var graficaProyeccion = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proyeccion_" + seccion + ".png' width='300'><br>";
+    var textoProyeccion = "<p><strong>Explicación Proyección:</strong> Este gráfico presenta la proyección futura de la participación electoral y Votos obtenidos en la sección, basada en los resultados de las tres elecciones anteriores.</p></div>";
+    container.innerHTML += graficaProyeccion + textoProyeccion;
+
+    // Agregar el contenedor con las 4 gráficas y explicaciones a la ventana modal
+    graficaContainer.appendChild(container);
+};
+
+
+
+        // Cerrar la ventana modal cuando el usuario haga clic en el botón de cierre
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = function() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none"; // Cerrar la ventana modal
+        }
+
+        // Cerrar la ventana modal si el usuario hace clic fuera de ella
+        window.onclick = function(event) {
+            var modal = document.getElementById("myModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
