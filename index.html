@@ -116,7 +116,9 @@
                                 var fila = document.createElement('tr');
                                 fila.innerHTML = "<td>" + feature.properties.SECCION + "</td>" +
                                                  "<td>" + feature.properties.DISTRITO_F + "</td>" +
-                                                 "<td>" + feature.properties.DISTRITO_L + "</td>";
+                                                 "<td>" + feature.properties.DISTRITO_L + "</td>" +
+						 "<td>" + (feature.properties['24A_LN'] || 'No disponible') + "</td>" +  // Lista Nominal (campo 24A_LN)
+               					 "<td>" + (feature.properties.CASILLAS || 'No disponible') + "</td>";  // Número de Casillas (campo CASILLAS);
                                 tablaBody.appendChild(fila);
 
                                 // Agregar un enlace para mostrar las gráficas
