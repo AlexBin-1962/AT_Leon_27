@@ -64,30 +64,7 @@
     <!-- El Mapa -->
     <div id="map"></div>
 
-    <!-- La ventana Modal -->
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Datos de la Sección</h2>
-            <table id="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>Sección          </th>
-                        <th>Federal          </th>
-                        <th>Local            </th>
-			<th>Lista N          </th>  
-			<th>Casillas         </th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-body">
-                    <!-- Los datos de la tabla se agregarán aquí dinámicamente -->
-                </tbody>
-            </table>
-            <div id="grafica-container">
-                <!-- Las gráficas se mostrarán aquí al hacer clic en el botón -->
-            </div>
-        </div>
-    </div>
+    
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
@@ -163,40 +140,58 @@
 
         // Función para mostrar las 4 gráficas y sus explicaciones en dos columnas
 	window.showGraphs = function (seccion) {
-		var graficaContainer = document.getElementById("grafica-container");
+    var graficaContainer = document.getElementById("grafica-container");
 
-		// Limpiar el contenedor de las gráficas
-		graficaContainer.innerHTML = "";
+    // Limpiar el contenedor de las gráficas
+    graficaContainer.innerHTML = "";
 
-		// Crear un contenedor general para las 4 gráficas y sus explicaciones
-		var container = document.createElement("div");
-		container.style.display = "grid";
-		container.style.gridTemplateColumns = "1fr 1fr"; // Dos columnas
-		container.style.gap = "20px"; // Espacio entre las columnas
+    // Crear un contenedor general para las 4 gráficas y sus explicaciones
+    var container = document.createElement("div");
+    container.style.display = "grid";
+    container.style.gridTemplateColumns = "1fr 1fr"; // Dos columnas
+    container.style.gap = "20px"; // Espacio entre las columnas
 
-		// Gráfica de Historial
-		var graficaHistorial = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_historial/historial_" + seccion + ".png' width='300'><br>";
-		var textoHistorial = "<p><strong>Explicación Historial:</strong> Este gráfico muestra los resultados de las elecciones de los tres principales partidos: PAN, PRI y MORENA en las elecciones de 2018, 2021 y 2024.</p></div>";
-		container.innerHTML += graficaHistorial + textoHistorial;
+    // Crear la tabla con los títulos y los datos de la sección
+    var tabla = "<table style='width: 100%; border: 1px solid #ddd; border-collapse: collapse;'>";
+    tabla += "<thead><tr><th style='padding: 8px; background-color: #f2f2f2;'>Sección</th>" +
+             "<th style='padding: 8px; background-color: #f2f2f2;'>Distrito Federal</th>" +
+             "<th style='padding: 8px; background-color: #f2f2f2;'>Distrito Local</th>" +
+             "<th style='padding: 8px; background-color: #f2f2f2;'>Lista Nominal</th>" +
+             "<th style='padding: 8px; background-color: #f2f2f2;'>Casillas</th></tr></thead>";
+    tabla += "<tbody><tr><td style='padding: 8px; text-align: center;'>" + seccion + "</td>" +
+             "<td style='padding: 8px; text-align: center;'>" + feature.properties.DISTRITO_F + "</td>" +
+             "<td style='padding: 8px; text-align: center;'>" + feature.properties.DISTRITO_L + "</td>" +
+             "<td style='padding: 8px; text-align: center;'>" + (feature.properties['24A_LN'] || 'No disponible') + "</td>" + // Lista Nominal
+             "<td style='padding: 8px; text-align: center;'>" + (feature.properties.CASILLAS || 'No disponible') + "</td></tr>";
+    tabla += "</tbody></table>";
 
-		// Gráfica de Competencia
-		var graficaCompetencia = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/grafica_competencia_" + seccion + ".png' width='300'><br>";
-		var textoCompetencia = "<p><strong>Explicación Competencia:</strong> La competitividad electoral refleja lo parejo de la contienda: si la diferencia de votos entre el primer y segundo lugar fue pequeña en una sección, decimos que hubo alta competencia allí..</p></div>";
-		container.innerHTML += graficaCompetencia + textoCompetencia;
+    // Agregar la tabla al contenedor
+    container.innerHTML += tabla;
 
-		// Gráfica de Ganadores
-		var graficaGanadores = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_ganadores/ganadores_" + seccion + ".png' width='300'><br>";
-		var textoGanadores = "<p><strong>Explicación Ganadores:</strong> Este gráfico muestra los ganadores de cada elección en las distintas secciones a través de las elecciones de 2018, 2021 y 2024.</p></div>";
-		container.innerHTML += graficaGanadores + textoGanadores;
+    // Gráfica de Historial
+    var graficaHistorial = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_historial/historial_" + seccion + ".png' width='300'><br>";
+    var textoHistorial = "<p><strong>Explicación Historial:</strong> Este gráfico muestra los resultados de las elecciones de los tres principales partidos: PAN, PRI y MORENA en las elecciones de 2018, 2021 y 2024.</p></div>";
+    container.innerHTML += graficaHistorial + textoHistorial;
 
-		// Gráfica de Proyección
-		var graficaProyeccion = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proy_27_" + seccion + ".png' width='300'><br>";
-		var textoProyeccion = "<p><strong>Explicación Proyección:</strong> Este gráfico presenta la proyección futura de la participación electoral y Votos obtenidos en la sección, basada en los resultados de las tres elecciones anteriores.</p></div>";
-		container.innerHTML += graficaProyeccion + textoProyeccion;
+    // Gráfica de Competencia
+    var graficaCompetencia = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/grafica_competencia_" + seccion + ".png' width='300'><br>";
+    var textoCompetencia = "<p><strong>Explicación Competencia:</strong> La competitividad electoral refleja lo parejo de la contienda: si la diferencia de votos entre el primer y segundo lugar fue pequeña en una sección, decimos que hubo alta competencia allí..</p></div>";
+    container.innerHTML += graficaCompetencia + textoCompetencia;
 
-		// Agregar el contenedor con las 4 gráficas y explicaciones a la ventana modal
-		graficaContainer.appendChild(container);
-	};
+    // Gráfica de Ganadores
+    var graficaGanadores = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_ganadores/ganadores_" + seccion + ".png' width='300'><br>";
+    var textoGanadores = "<p><strong>Explicación Ganadores:</strong> Este gráfico muestra los ganadores de cada elección en las distintas secciones a través de las elecciones de 2018, 2021 y 2024.</p></div>";
+    container.innerHTML += graficaGanadores + textoGanadores;
+
+    // Gráfica de Proyección
+    var graficaProyeccion = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proy_27_" + seccion + ".png' width='300'><br>";
+    var textoProyeccion = "<p><strong>Explicación Proyección:</strong> Este gráfico presenta la proyección futura de la participación electoral y Votos obtenidos en la sección, basada en los resultados de las tres elecciones anteriores.</p></div>";
+    container.innerHTML += graficaProyeccion + textoProyeccion;
+
+    // Agregar el contenedor con las 4 gráficas y explicaciones a la ventana modal
+    graficaContainer.appendChild(container);
+};
+
 
 
 
