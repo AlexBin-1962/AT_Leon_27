@@ -98,7 +98,7 @@
         }).addTo(map);
 
         // Cargar el archivo GeoJSON desde GitHub
-        fetch('https://raw.githubusercontent.com/AlexBin-1962/AT_Irapuato_27/main/AT_Leon.geojson')
+        fetch('https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/AT_Leon.geojson')
             .then(response => response.json())
             .then(data => {
                 // Crear la capa GeoJSON
@@ -176,7 +176,7 @@
 		container.innerHTML += graficaHistorial + textoHistorial;
 
 		// Gráfica de Competencia
-		var graficaCompetencia = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/competencia_" + seccion + ".png' width='300'><br>";
+		var graficaCompetencia = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/grafica_competencia_" + seccion + ".png' width='300'><br>";
 		var textoCompetencia = "<p><strong>Explicación Competencia:</strong> La competitividad electoral refleja lo parejo de la contienda: si la diferencia de votos entre el primer y segundo lugar fue pequeña en una sección, decimos que hubo alta competencia allí..</p></div>";
 		container.innerHTML += graficaCompetencia + textoCompetencia;
 
@@ -186,7 +186,7 @@
 		container.innerHTML += graficaGanadores + textoGanadores;
 
 		// Gráfica de Proyección
-		var graficaProyeccion = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proyeccion_" + seccion + ".png' width='300'><br>";
+		var graficaProyeccion = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proy_27_" + seccion + ".png' width='300'><br>";
 		var textoProyeccion = "<p><strong>Explicación Proyección:</strong> Este gráfico presenta la proyección futura de la participación electoral y Votos obtenidos en la sección, basada en los resultados de las tres elecciones anteriores.</p></div>";
 		container.innerHTML += graficaProyeccion + textoProyeccion;
 
