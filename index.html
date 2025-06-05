@@ -159,40 +159,41 @@
 
         // Función para mostrar las 4 gráficas y sus explicaciones en dos columnas
 	window.showGraphs = function (seccion) {
-		var graficaContainer = document.getElementById("grafica-container");
+    var graficaContainer = document.getElementById("grafica-container");
 
-		// Limpiar el contenedor de las gráficas
-		graficaContainer.innerHTML = "";
+    // Limpiar el contenedor de las gráficas
+    graficaContainer.innerHTML = "";
 
-		// Crear un contenedor general para las 4 gráficas y sus explicaciones
-		var container = document.createElement("div");
-		container.style.display = "grid";
-		container.style.gridTemplateColumns = "1fr 1fr"; // Dos columnas
-		container.style.gap = "20px"; // Espacio entre las columnas
+    // Crear un contenedor general para las 4 gráficas y sus explicaciones
+    var container = document.createElement("div");
+    container.style.display = "grid";
+    container.style.gridTemplateColumns = "1fr 1fr"; // Dos columnas
+    container.style.gap = "20px"; // Espacio entre las columnas
 
-		// Gráfica de Historial
-		var graficaHistorial = "<div><img src='https://github.com/AlexBin-1962/AT_Leon_27/blob/main/Carpetas/graficas_historial/historial_" + seccion + ".png' width='300'><br>";
-		var textoHistorial = "<p><strong>Explicación Historial:</strong> Este gráfico muestra los resultados de las elecciones de los tres principales partidos: PAN, PRI y MORENA en las elecciones de 2018, 2021 y 2024.</p></div>";
-		container.innerHTML += graficaHistorial + textoHistorial;
+    // **Gráfica de Historial**
+    var graficaHistorial = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_historial/historial_" + seccion + ".png' width='300'><br>";
+    var textoHistorial = "<p><strong>Explicación Historial:</strong> Este gráfico muestra los resultados de las elecciones de los tres principales partidos: PAN, PRI y MORENA en las elecciones de 2018, 2021 y 2024.</p></div>";
+    container.innerHTML += graficaHistorial + textoHistorial;
 
-		// Gráfica de Competencia
-		var graficaCompetencia = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/competencia_" + seccion + ".png' width='300'><br>";
-		var textoCompetencia = "<p><strong>Explicación Competencia:</strong> La competitividad electoral refleja lo parejo de la contienda: si la diferencia de votos entre el primer y segundo lugar fue pequeña en una sección, decimos que hubo alta competencia allí..</p></div>";
-		container.innerHTML += graficaCompetencia + textoCompetencia;
+    // **Gráfica de Competencia**
+    var graficaCompetencia = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/competencia_" + seccion + ".png' width='300'><br>";
+    var textoCompetencia = "<p><strong>Explicación Competencia:</strong> La competitividad electoral refleja lo parejo de la contienda: si la diferencia de votos entre el primer y segundo lugar fue pequeña en una sección, decimos que hubo alta competencia allí.</p></div>";
+    container.innerHTML += graficaCompetencia + textoCompetencia;
 
-		// Gráfica de Ganadores
-		var graficaGanadores = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_ganadores/ganadores_" + seccion + ".png' width='300'><br>";
-		var textoGanadores = "<p><strong>Explicación Ganadores:</strong> Este gráfico muestra los ganadores de cada elección en las distintas secciones a través de las elecciones de 2018, 2021 y 2024.</p></div>";
-		container.innerHTML += graficaGanadores + textoGanadores;
+    // **Gráfica de Ganadores**
+    var graficaGanadores = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_ganadores/ganadores_" + seccion + ".png' width='300'><br>";
+    var textoGanadores = "<p><strong>Explicación Ganadores:</strong> Este gráfico muestra los ganadores de cada elección en las distintas secciones a través de las elecciones de 2018, 2021 y 2024.</p></div>";
+    container.innerHTML += graficaGanadores + textoGanadores;
 
-		// Gráfica de Proyección
-		var graficaProyeccion = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proyeccion_" + seccion + ".png' width='300'><br>";
-		var textoProyeccion = "<p><strong>Explicación Proyección:</strong> Este gráfico presenta la proyección futura de la participación electoral y Votos obtenidos en la sección, basada en los resultados de las tres elecciones anteriores.</p></div>";
-		container.innerHTML += graficaProyeccion + textoProyeccion;
+    // **Gráfica de Proyección**
+    var graficaProyeccion = "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proyeccion_" + seccion + ".png' width='300'><br>";
+    var textoProyeccion = "<p><strong>Explicación Proyección:</strong> Este gráfico presenta la proyección futura de la participación electoral en la sección, basada en los resultados anteriores.</p></div>";
+    container.innerHTML += graficaProyeccion + textoProyeccion;
 
-		// Agregar el contenedor con las 4 gráficas y explicaciones a la ventana modal
-		graficaContainer.appendChild(container);
-	};
+    // Agregar el contenedor con las 4 gráficas y explicaciones a la ventana modal
+    graficaContainer.appendChild(container);
+};
+
 
 
 
