@@ -1,0 +1,94 @@
+<!-- agrega un comentario al inicio -->
+<!-- Archivo actualizado para activación de GitHub Pages -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recolección de Datos en Campo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        html, body, #map {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .custom-popup {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    // Inicializa el mapa
+    const map = L.map('map').setView([21.12, -101.68], 11); // Centro aproximado de León
+
+    // Capa base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Cargar el GeoJSON con secciones
+    fetch('../AT_Leon.geojson')
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, {
+                style: {
+                    color: '#555',
+                    weight: 1,
+                    fillOpacity: 0.1
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.on('click', function () {
+                        const seccion = feature.properties.SECCION || 'Sin ID';
+                        L.popup()
+                          .setLatLng(layer.getBounds().getCenter())
+                          .setContent(`<div class="custom-popup">
+                            <strong>Sección:</strong> ${seccion}<br>
+                            <button onclick="iniciarCaptura(${seccion})">Agregar dato aquí</button>
+                          </div>`)
+                          .openOn(map);
+                    });
+                }
+            }).addTo(map);
+        });
+
+    // Función llamada desde el botón
+    function iniciarCaptura(seccion) {
+        const tipo = prompt("Tipo de dato (simpatizante, casilla, liderazgo):");
+        const descripcion = prompt("Descripción breve:");
+        const latlng = map.getCenter(); // Podríamos ajustar para obtener clic exacto
+
+        if (tipo && descripcion) {
+            const punto = {
+                tipo,
+                descripcion,
+                seccion,
+                lat: latlng.lat,
+                lon: latlng.lng,
+                fecha: new Date().toISOString()
+            };
+
+            console.log("📌 Dato capturado:", punto);
+
+            // Mostrar en el mapa (opcional por ahora)
+            L.marker(latlng).addTo(map)
+              .bindPopup(`<strong>${tipo}</strong><br>${descripcion}`)
+              .openPopup();
+        }
+    }
+</script>
+
+</body>
+</html>
