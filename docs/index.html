@@ -1,94 +1,102 @@
-<!-- agrega un comentario al inicio -->
-<!-- Archivo actualizado para activación de GitHub Pages -->
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Recolección de Datos en Campo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-    <style>
-        html, body, #map {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .custom-popup {
-            font-size: 14px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>App de Campo - Captura de Datos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body, #map {
+      height: 100%;
+      margin: 0;
+    }
+    .leaflet-popup-content {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .form-popup {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    input, select, button {
+      padding: 4px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
+  <div id="map"></div>
 
-<div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([21.1219, -101.6827], 13);
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-    // Inicializa el mapa
-    const map = L.map('map').setView([21.12, -101.68], 11); // Centro aproximado de León
-
-    // Capa base
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Cargar el GeoJSON con secciones
     fetch('AT_Leon.geojson')
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                style: {
-                    color: '#555',
-                    weight: 1,
-                    fillOpacity: 0.1
-                },
-                onEachFeature: function (feature, layer) {
-                    layer.on('click', function () {
-                        const seccion = feature.properties.SECCION || 'Sin ID';
-                        L.popup()
-                          .setLatLng(layer.getBounds().getCenter())
-                          .setContent(`<div class="custom-popup">
-                            <strong>Sección:</strong> ${seccion}<br>
-                            <button onclick="iniciarCaptura(${seccion})">Agregar dato aquí</button>
-                          </div>`)
-                          .openOn(map);
-                    });
-                }
-            }).addTo(map);
-        });
+      .then(resp => resp.json())
+      .then(data => {
+        L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            const props = feature.properties;
+            layer.on('click', function (e) {
+              const latlng = e.latlng;
+              const seccion = props.SECCION || 'N/D';
+              const distritoF = props.DISTRITO_F || 'N/D';
+              const distritoL = props.DISTRITO_L || 'N/D';
 
-    // Función llamada desde el botón
-    function iniciarCaptura(seccion) {
-        const tipo = prompt("Tipo de dato (simpatizante, casilla, liderazgo):");
-        const descripcion = prompt("Descripción breve:");
-        const latlng = map.getCenter(); // Podríamos ajustar para obtener clic exacto
+              const formHtml = `
+                <div class="form-popup">
+                  <strong>Sección ${seccion}</strong><br>
+                  Distrito F: ${distritoF}<br>
+                  Distrito L: ${distritoL}<br><br>
 
-        if (tipo && descripcion) {
-            const punto = {
-                tipo,
-                descripcion,
-                seccion,
-                lat: latlng.lat,
-                lon: latlng.lng,
-                fecha: new Date().toISOString()
-            };
+                  <label for="tipo">Tipo de dato:</label>
+                  <select id="tipo">
+                    <option value="Simpatizante">Simpatizante</option>
+                    <option value="Casilla">Casilla</option>
+                    <option value="Liderazgo">Liderazgo</option>
+                    <option value="Activista rival">Activista rival</option>
+                  </select>
 
-            console.log("📌 Dato capturado:", punto);
+                  <label for="descripcion">Descripción:</label>
+                  <input type="text" id="descripcion" placeholder="Ej. Nombre, dirección, observaciones">
 
-            // Mostrar en el mapa (opcional por ahora)
-            L.marker(latlng).addTo(map)
-              .bindPopup(`<strong>${tipo}</strong><br>${descripcion}`)
-              .openPopup();
-        }
+                  <button onclick="guardarDato('${seccion}', ${latlng.lat}, ${latlng.lng})">Guardar</button>
+                </div>`;
+
+              layer.bindPopup(formHtml).openPopup();
+            });
+          }
+        }).addTo(map);
+      });
+
+    function guardarDato(seccion, lat, lng) {
+      const tipo = document.getElementById('tipo').value;
+      const descripcion = document.getElementById('descripcion').value;
+      const fecha = new Date().toISOString();
+
+      const nuevoDato = {
+        seccion,
+        lat,
+        lng,
+        tipo,
+        descripcion,
+        fecha
+      };
+
+      console.log("✅ Dato capturado:", nuevoDato);
+
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(`<strong>${tipo}</strong><br>${descripcion}`)
+        .openPopup();
+
+      map.closePopup(); // cierra el formulario después de capturar
     }
-</script>
-
+  </script>
 </body>
 </html>
