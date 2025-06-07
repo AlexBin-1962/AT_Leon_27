@@ -220,29 +220,63 @@ function ubicarUsuario() {
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(function(position) {
+  navigator.geolocation.getCurrentPosition(function (position) {
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
 
-    // Agrega un marcador azul
-    L.circleMarker([lat, lng], {
-      radius: 8,
-      color: '#1E90FF',        // Azul
-      fillColor: '#1E90FF',
-      fillOpacity: 0.8
-    })
-    .addTo(map)
-    .bindPopup("📍 Estás aquí")
-    .openPopup();
+    // Crear el formulario con campos lat/lng
+    const formHtml = `
+      <form onsubmit="guardarDato(event)">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required><br>
+        <label for="paterno">Paterno:</label>
+        <input type="text" id="paterno" name="paterno" required><br>
+        <label for="materno">Materno:</label>
+        <input type="text" id="materno" name="materno"><br>
+        <label for="telefono">Teléfono:</label>
+        <input type="tel" id="telefono" name="telefono" required><br>
+        <label for="calle">Calle:</label>
+        <input type="text" id="calle" name="calle" required><br>
+        <label for="numero">Número:</label>
+        <input type="text" id="numero" name="numero"><br>
+        <label for="tipo">Tipo:</label>
+        <select id="tipo" name="tipo" required>
+          <option value="SIMPATIZANTE">SIMPATIZANTE</option>
+          <option value="CASILLA">CASILLA</option>
+          <option value="LIDERAZGO">LIDERAZGO</option>
+          <option value="ACTIVISTA RIVAL">ACTIVISTA RIVAL</option>
+        </select><br>
+        <label for="observaciones">Observaciones:</label><br>
+        <textarea id="observaciones" name="observaciones" rows="2" cols="30"></textarea><br>
 
-    // Centra el mapa en la ubicación actual
+        <label for="latitud">Latitud:</label>
+        <input type="text" id="latitud" name="latitud" readonly><br>
+        <label for="longitud">Longitud:</label>
+        <input type="text" id="longitud" name="longitud" readonly><br>
+
+        <button type="submit">Guardar</button>
+      </form>
+    `;
+
+    // Agregar marcador con popup de formulario
+    const marker = L.marker([lat, lng], { draggable: false }).addTo(map);
+    marker.bindPopup(formHtml).openPopup();
+
+    // Centrar el mapa en la ubicación
     map.setView([lat, lng], 16);
 
-  }, function(error) {
+    // Llenar automáticamente los campos lat/lng
+    setTimeout(() => {
+      document.getElementById("latitud").value = lat.toFixed(6);
+      document.getElementById("longitud").value = lng.toFixed(6);
+    }, 300);
+
+  }, function (error) {
     alert("No se pudo obtener tu ubicación.");
     console.error(error);
   });
 }
+
 
     
   </script>
