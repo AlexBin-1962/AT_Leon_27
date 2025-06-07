@@ -1,152 +1,139 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>App de Campo - Captura de Datos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <title>App de Campo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
   <style>
-    html, body, #map {
-      height: 100%;
-      margin: 0;
-      font-family: sans-serif;
-    }
+    html, body, #map { height: 100%; margin: 0; }
+
     .leaflet-popup-content {
+      font-family: Arial, sans-serif;
       font-size: 14px;
-      line-height: 1.5;
     }
+
     .form-popup {
-      background: #fff;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
+
     .form-popup label {
+      grid-column: span 2;
       font-weight: bold;
-      margin-bottom: 2px;
+      margin-top: 4px;
     }
+
     .form-popup input,
     .form-popup select,
     .form-popup textarea {
+      grid-column: span 2;
       padding: 6px;
-      font-size: 14px;
-      border-radius: 6px;
       border: 1px solid #ccc;
-      width: 100%;
-      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 14px;
     }
-    .form-popup textarea {
-      resize: vertical;
-    }
+
     .form-popup button {
-      background-color: #007BFF;
+      grid-column: span 2;
+      background-color: #4CAF50;
       color: white;
       border: none;
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 6px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
       cursor: pointer;
     }
+
     .form-popup button:hover {
-      background-color: #0056b3;
+      background-color: #45a049;
     }
-    .form-popup i {
-      margin-right: 6px;
-      color: #007BFF;
-    }
+
     #mensaje-confirmacion, #mensaje-error {
       position: fixed;
-      top: 15px;
-      right: 15px;
-      padding: 12px 18px;
-      border-radius: 8px;
-      font-weight: bold;
+      top: 10px;
+      right: 10px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      color: white;
       display: none;
       z-index: 1000;
     }
-    #mensaje-confirmacion {
-      background-color: #28a745;
-      color: white;
-    }
-    #mensaje-error {
-      background-color: #dc3545;
-      color: white;
-    }
-    #ubicar-btn {
+
+    #mensaje-confirmacion { background-color: #4CAF50; }
+    #mensaje-error { background-color: #f44336; }
+
+    #btn-ubicar {
       position: absolute;
       top: 10px;
       left: 10px;
       z-index: 1000;
-      padding: 8px 14px;
-      background-color: #343a40;
+      background: #1e90ff;
       color: white;
+      padding: 8px 12px;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 14px;
       cursor: pointer;
     }
-    #ubicar-btn:hover {
-      background-color: #23272b;
+
+    #btn-ubicar:hover {
+      background: #187bcd;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <button id="ubicar-btn" onclick="ubicarUsuario()"><i class="fas fa-location-crosshairs"></i> Ubicarme</button>
-
+  <button id="btn-ubicar" onclick="ubicarUsuario()">📍 Ubicarme</button>
   <div id="mensaje-confirmacion">✅ Dato guardado correctamente</div>
-  <div id="mensaje-error">⚠️ Por favor completa los campos obligatorios</div>
+  <div id="mensaje-error">⚠️ Completa los campos obligatorios</div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const map = L.map('map').setView([21.1219, -101.6827], 13);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Cargar secciones del GeoJSON
     fetch('AT_Leon.geojson')
-  .then(resp => resp.json())
-  .then(data => {
-    L.geoJSON(data, {
-      style: {
-        color: "#555",
-        weight: 1,
-        fillOpacity: 0.1
-      },
-      onEachFeature: function (feature, layer) {
-        const props = feature.properties;
-        layer.on('click', function () {
-          const popupContent = `
-            <strong>Sección:</strong> ${props.SECCION}<br>
-            <strong>Distrito Federal:</strong> ${props.DISTRITO_F}<br>
-            <strong>Distrito Local:</strong> ${props.DISTRITO_L}
-          `;
-          layer.bindPopup(popupContent).openPopup();
-        });
-      }
-    }).addTo(map);
-  })
-  .catch(error => console.error("Error al cargar GeoJSON:", error));
-
+      .then(resp => resp.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: {
+            color: "#777",
+            weight: 1,
+            fillOpacity: 0.05
+          },
+          onEachFeature: function (feature, layer) {
+            const props = feature.properties;
+            layer.on('click', function () {
+              const content = `
+                <strong>Sección:</strong> ${props.SECCION}<br>
+                <strong>Distrito Federal:</strong> ${props.DISTRITO_F}<br>
+                <strong>Distrito Local:</strong> ${props.DISTRITO_L}
+              `;
+              layer.bindPopup(content).openPopup();
+            });
+          }
+        }).addTo(map);
+      });
 
     function ubicarUsuario() {
       if (!navigator.geolocation) {
-        alert("La geolocalización no es compatible con este navegador.");
+        alert("Tu navegador no soporta geolocalización.");
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(function (position) {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
 
         const formHtml = `
           <div class="form-popup">
-            <label><i class="fas fa-user-tag"></i>Tipo de dato *</label>
+            <label><i class="fa-solid fa-users-viewfinder"></i> Tipo de dato *</label>
             <select id="tipo">
               <option value="">--Selecciona--</option>
               <option value="Simpatizante">Simpatizante</option>
@@ -155,67 +142,95 @@
               <option value="Activista rival">Activista rival</option>
             </select>
 
-            <label><i class="fas fa-user"></i>Nombre *</label>
-            <input type="text" id="nombre" placeholder="Nombre">
+            <label><i class="fa-solid fa-user"></i> Nombre *</label>
+            <input id="nombre" placeholder="Nombre">
 
-            <label><i class="fas fa-user"></i>Apellido paterno *</label>
-            <input type="text" id="paterno" placeholder="Apellido paterno">
+            <label><i class="fa-solid fa-user"></i> Apellido Paterno *</label>
+            <input id="paterno" placeholder="Paterno">
 
-            <label><i class="fas fa-user"></i>Apellido materno</label>
-            <input type="text" id="materno" placeholder="Apellido materno (opcional)">
+            <label><i class="fa-solid fa-user"></i> Apellido Materno</label>
+            <input id="materno" placeholder="Materno (opcional)">
 
-            <label><i class="fas fa-road"></i>Calle *</label>
-            <input type="text" id="calle" placeholder="Ej. Calle Hidalgo">
+            <label><i class="fa-solid fa-location-dot"></i> Calle *</label>
+            <input id="calle" placeholder="Ej. Av. Hidalgo">
 
-            <label><i class="fas fa-home"></i>Número exterior *</label>
-            <input type="text" id="numero" placeholder="Ej. 102-B">
+            <label><i class="fa-solid fa-hashtag"></i> Número exterior *</label>
+            <input id="numero" placeholder="Ej. 102-B">
 
-            <label><i class="fas fa-phone"></i>Teléfono *</label>
-            <input type="text" id="telefono" placeholder="10 dígitos">
+            <label><i class="fa-solid fa-phone"></i> Teléfono *</label>
+            <input id="telefono" placeholder="10 dígitos">
 
-            <label><i class="fas fa-comment-dots"></i>Observaciones</label>
-            <textarea id="observaciones" rows="2" placeholder="Notas adicionales..."></textarea>
+            <label><i class="fa-solid fa-pen"></i> Observaciones</label>
+            <textarea id="observaciones" rows="2"></textarea>
 
-            <label><i class="fas fa-map-marker-alt"></i>Latitud:</label>
-            <input type="text" id="latitud" readonly value="${lat.toFixed(6)}">
+            <label><i class="fa-solid fa-location-crosshairs"></i> Latitud:</label>
+            <input id="latitud" value="${lat.toFixed(6)}" readonly>
 
-            <label><i class="fas fa-map-marker-alt"></i>Longitud:</label>
-            <input type="text" id="longitud" readonly value="${lng.toFixed(6)}">
+            <label><i class="fa-solid fa-location-crosshairs"></i> Longitud:</label>
+            <input id="longitud" value="${lng.toFixed(6)}" readonly>
 
-            <button onclick="guardarDato('${lat}', '${lng}')"><i class="fas fa-save"></i> Guardar</button>
-          </div>`;
+            <button onclick="guardarDato(${lat}, ${lng})">Guardar</button>
+          </div>
+        `;
 
         const marker = L.marker([lat, lng]).addTo(map);
         marker.bindPopup(formHtml).openPopup();
         map.setView([lat, lng], 16);
-      }, function (err) {
-        alert("Error al obtener ubicación: " + err.message);
+      }, err => {
+        alert("Error de geolocalización.");
+        console.error(err);
       });
     }
 
     function guardarDato(lat, lng) {
-      const tipo = document.getElementById("tipo").value.trim();
-      const nombre = document.getElementById("nombre").value.trim();
-      const paterno = document.getElementById("paterno").value.trim();
-      const calle = document.getElementById("calle").value.trim();
-      const numero = document.getElementById("numero").value.trim();
-      const telefono = document.getElementById("telefono").value.trim();
+      const tipo = document.getElementById('tipo').value.trim();
+      const nombre = document.getElementById('nombre').value.trim();
+      const paterno = document.getElementById('paterno').value.trim();
+      const materno = document.getElementById('materno').value.trim();
+      const calle = document.getElementById('calle').value.trim();
+      const numero = document.getElementById('numero').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const observaciones = document.getElementById('observaciones').value.trim();
+      const fecha = new Date().toISOString();
+
       if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
-        mostrarMensaje('error');
+        mostrarMensaje("error");
         return;
       }
-      mostrarMensaje('confirmacion');
+
+      const color = {
+        'Simpatizante': '#800000',
+        'Casilla': '#2e8b57',
+        'Liderazgo': '#ff8c00',
+        'Activista rival': '#dc143c'
+      }[tipo] || '#333';
+
+      L.circleMarker([lat, lng], {
+        radius: 8,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.8
+      }).addTo(map)
+        .bindPopup(`<strong>${tipo}</strong><br>${nombre} ${paterno}<br>${calle} ${numero}`)
+        .openPopup();
+
+      map.closePopup();
+      mostrarMensaje("confirmacion");
+      console.log("✅ Dato capturado:", {
+        tipo, nombre, paterno, materno, calle, numero,
+        telefono, observaciones, lat, lng, fecha
+      });
     }
 
     function mostrarMensaje(tipo) {
-      const ok = document.getElementById("mensaje-confirmacion");
-      const err = document.getElementById("mensaje-error");
-      if (tipo === 'confirmacion') {
-        ok.style.display = 'block';
-        setTimeout(() => ok.style.display = 'none', 3000);
+      const ok = document.getElementById('mensaje-confirmacion');
+      const error = document.getElementById('mensaje-error');
+      if (tipo === "confirmacion") {
+        ok.style.display = "block";
+        setTimeout(() => { ok.style.display = "none"; }, 3000);
       } else {
-        err.style.display = 'block';
-        setTimeout(() => err.style.display = 'none', 3000);
+        error.style.display = "block";
+        setTimeout(() => { error.style.display = "none"; }, 3000);
       }
     }
   </script>
