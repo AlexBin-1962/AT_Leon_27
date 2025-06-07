@@ -70,69 +70,19 @@
         L.geoJSON(data, {
           onEachFeature: function (feature, layer) {
             const props = feature.properties;
-            layer.on('click', function (e) {
-              const latlng = e.latlng;
-              const seccion = props.SECCION || 'N/D';
-              const distritoF = props.DISTRITO_F || 'N/D';
-              const distritoL = props.DISTRITO_L || 'N/D';
+           layer.on('click', function () {
+            const seccion = props.SECCION || 'N/D';
+            const distritoF = props.DISTRITO_F || 'N/D';
+            const distritoL = props.DISTRITO_L || 'N/D';
+          
+            const popupContent = `
+              <strong>Sección:</strong> ${seccion}<br>
+              <strong>Distrito Federal:</strong> ${distritoF}<br>
+              <strong>Distrito Local:</strong> ${distritoL}
+            `;
+            layer.bindPopup(popupContent).openPopup();
+});
 
-              const formHtml = `
-                <div class="form-popup">
-                  <strong>Sección ${seccion}</strong><br>
-                  Distrito F: ${distritoF}<br>
-                  Distrito L: ${distritoL}<br><br>
-
-                  <label for="tipo">Tipo de dato *</label>
-                  <select id="tipo">
-                    <option value="">--Selecciona--</option>
-                    <option value="Simpatizante">Simpatizante</option>
-                    <option value="Casilla">Casilla</option>
-                    <option value="Liderazgo">Liderazgo</option>
-                    <option value="Activista rival">Activista rival</option>
-                  </select>
-
-                  <label for="nombre">Nombre *</label>
-                  <input type="text" id="nombre" placeholder="Nombre">
-
-                  <label for="paterno">Apellido paterno *</label>
-                  <input type="text" id="paterno" placeholder="Apellido paterno">
-
-                  <label for="materno">Apellido materno</label>
-                  <input type="text" id="materno" placeholder="Apellido materno (opcional)">
-
-                  <label for="calle">Calle *</label>
-                  <input type="text" id="calle" placeholder="Ej. Calle Hidalgo">
-
-                  <label for="numero">Número exterior *</label>
-                  <input type="text" id="numero" placeholder="Ej. 102-B">
-
-                  <label for="telefono">Teléfono *</label>
-                  <input type="text" id="telefono" placeholder="10 dígitos">
-
-                  <label for="observaciones">Observaciones</label>
-                  <textarea id="observaciones" rows="2" placeholder="Notas adicionales..."></textarea>
-
-                  <label for="latitud">Latitud:</label>
-                  <input type="text" id="latitud" name="latitud" readonly><br>
-
-                  <label for="longitud">Longitud:</label>
-                  <input type="text" id="longitud" name="longitud" readonly><br>
-                  
-
-                  <button onclick="guardarDato('${seccion}', ${latlng.lat}, ${latlng.lng})">Guardar</button>
-                </div>`;
-
-              layer.bindPopup(formHtml).openPopup();
-              setTimeout(() => {
-                  const latInput = document.getElementById("latitud");
-                  const lngInput = document.getElementById("longitud");
-                  if (latInput && lngInput) {
-                    latInput.value = layer.getLatLng().lat.toFixed(6);
-                    lngInput.value = layer.getLatLng().lng.toFixed(6);
-                  }
-                }, 300);
-
-            });
           }
         }).addTo(map);
       });
