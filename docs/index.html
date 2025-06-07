@@ -118,46 +118,70 @@
       });
 
     function guardarDato(seccion, lat, lng) {
-      const tipo = document.getElementById('tipo').value.trim();
-      const nombre = document.getElementById('nombre').value.trim();
-      const paterno = document.getElementById('paterno').value.trim();
-      const materno = document.getElementById('materno').value.trim();
-      const calle = document.getElementById('calle').value.trim();
-      const numero = document.getElementById('numero').value.trim();
-      const telefono = document.getElementById('telefono').value.trim();
-      const observaciones = document.getElementById('observaciones').value.trim();
-      const fecha = new Date().toISOString();
+  const tipo = document.getElementById('tipo').value.trim();
+  const nombre = document.getElementById('nombre').value.trim();
+  const paterno = document.getElementById('paterno').value.trim();
+  const materno = document.getElementById('materno').value.trim();
+  const calle = document.getElementById('calle').value.trim();
+  const numero = document.getElementById('numero').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const observaciones = document.getElementById('observaciones').value.trim();
+  const fecha = new Date().toISOString();
 
-      if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
-        mostrarMensaje('error');
-        return;
-      }
+  if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
+    mostrarMensaje('error');
+    return;
+  }
 
-      const nuevoDato = {
-        seccion,
-        lat,
-        lng,
-        tipo,
-        nombre,
-        paterno,
-        materno,
-        calle,
-        numero,
-        telefono,
-        observaciones,
-        fecha
-      };
+  const nuevoDato = {
+    seccion,
+    lat,
+    lng,
+    tipo,
+    nombre,
+    paterno,
+    materno,
+    calle,
+    numero,
+    telefono,
+    observaciones,
+    fecha
+  };
 
-      console.log("✅ Dato capturado:", nuevoDato);
+  console.log("✅ Dato capturado:", nuevoDato);
 
-      L.marker([lat, lng])
-        .addTo(map)
-        .bindPopup(`<strong>${tipo}</strong><br>${nombre} ${paterno}<br>${calle} ${numero}`)
-        .openPopup();
+  // Definir color según tipo
+  let color = '#000000'; // valor por defecto
+  switch (tipo) {
+    case 'Simpatizante':
+      color = '#800000'; // Guinda
+      break;
+    case 'Casilla':
+      color = '#2e8b57'; // Verde
+      break;
+    case 'Liderazgo':
+      color = '#ff8c00'; // Naranja
+      break;
+    case 'Activista rival':
+      color = '#dc143c'; // Rojo
+      break;
+  }
 
-      map.closePopup(); // cierra el formulario
-      mostrarMensaje('confirmacion');
-    }
+  // Agregar marcador de color
+  L.circleMarker([lat, lng], {
+    radius: 8,
+    color: color,
+    fillColor: color,
+    fillOpacity: 0.8
+  })
+    .addTo(map)
+    .bindPopup(`<strong>${tipo}</strong><br>${nombre} ${paterno}<br>${calle} ${numero}`)
+    .openPopup();
+
+  map.closePopup(); // cierra el formulario
+  mostrarMensaje('confirmacion');
+}
+
 
     function mostrarMensaje(tipo) {
       const mensajeOk = document.getElementById('mensaje-confirmacion');
