@@ -19,14 +19,38 @@
       flex-direction: column;
       gap: 6px;
     }
-    input, select, button {
+    input, select, textarea, button {
       padding: 4px;
       font-size: 14px;
+    }
+    #mensaje-confirmacion {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+    }
+    #mensaje-error {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #f44336;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <div id="mensaje-confirmacion">✅ Dato guardado correctamente</div>
+  <div id="mensaje-error">⚠️ Por favor completa todos los campos obligatorios</div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -54,16 +78,26 @@
                   Distrito F: ${distritoF}<br>
                   Distrito L: ${distritoL}<br><br>
 
-                  <label for="tipo">Tipo de dato:</label>
-                  <select id="tipo">
+                  <label for="tipo">Tipo de dato *</label>
+                  <select id="tipo" required>
+                    <option value="">--Selecciona--</option>
                     <option value="Simpatizante">Simpatizante</option>
                     <option value="Casilla">Casilla</option>
                     <option value="Liderazgo">Liderazgo</option>
                     <option value="Activista rival">Activista rival</option>
                   </select>
 
-                  <label for="descripcion">Descripción:</label>
-                  <input type="text" id="descripcion" placeholder="Ej. Nombre, dirección, observaciones">
+                  <label for="nombre">Nombre completo *</label>
+                  <input type="text" id="nombre" placeholder="Nombre completo">
+
+                  <label for="direccion">Domicilio *</label>
+                  <input type="text" id="direccion" placeholder="Calle, número, colonia">
+
+                  <label for="telefono">Teléfono *</label>
+                  <input type="text" id="telefono" placeholder="10 dígitos">
+
+                  <label for="observaciones">Observaciones</label>
+                  <textarea id="observaciones" rows="2" placeholder="Notas adicionales..."></textarea>
 
                   <button onclick="guardarDato('${seccion}', ${latlng.lat}, ${latlng.lng})">Guardar</button>
                 </div>`;
@@ -75,16 +109,27 @@
       });
 
     function guardarDato(seccion, lat, lng) {
-      const tipo = document.getElementById('tipo').value;
-      const descripcion = document.getElementById('descripcion').value;
+      const tipo = document.getElementById('tipo').value.trim();
+      const nombre = document.getElementById('nombre').value.trim();
+      const direccion = document.getElementById('direccion').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const observaciones = document.getElementById('observaciones').value.trim();
       const fecha = new Date().toISOString();
+
+      if (!tipo || !nombre || !direccion || !telefono) {
+        mostrarMensaje('error');
+        return;
+      }
 
       const nuevoDato = {
         seccion,
         lat,
         lng,
         tipo,
-        descripcion,
+        nombre,
+        direccion,
+        telefono,
+        observaciones,
         fecha
       };
 
@@ -92,10 +137,23 @@
 
       L.marker([lat, lng])
         .addTo(map)
-        .bindPopup(`<strong>${tipo}</strong><br>${descripcion}`)
+        .bindPopup(`<strong>${tipo}</strong><br>${nombre}<br>${direccion}`)
         .openPopup();
 
-      map.closePopup(); // cierra el formulario después de capturar
+      map.closePopup(); // cierra el formulario
+      mostrarMensaje('confirmacion');
+    }
+
+    function mostrarMensaje(tipo) {
+      const mensajeOk = document.getElementById('mensaje-confirmacion');
+      const mensajeError = document.getElementById('mensaje-error');
+      if (tipo === 'confirmacion') {
+        mensajeOk.style.display = 'block';
+        setTimeout(() => { mensajeOk.style.display = 'none'; }, 3000);
+      } else if (tipo === 'error') {
+        mensajeError.style.display = 'block';
+        setTimeout(() => { mensajeError.style.display = 'none'; }, 3000);
+      }
     }
   </script>
 </body>
