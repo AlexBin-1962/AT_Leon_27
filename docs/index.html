@@ -5,56 +5,101 @@
   <title>App de Campo - Captura de Datos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     html, body, #map {
       height: 100%;
       margin: 0;
+      font-family: sans-serif;
     }
     .leaflet-popup-content {
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.5;
     }
     .form-popup {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
-    input, select, textarea, button {
-      padding: 4px;
+    .form-popup label {
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    .form-popup input,
+    .form-popup select,
+    .form-popup textarea {
+      padding: 6px;
       font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .form-popup textarea {
+      resize: vertical;
+    }
+    .form-popup button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .form-popup button:hover {
+      background-color: #0056b3;
+    }
+    .form-popup i {
+      margin-right: 6px;
+      color: #007BFF;
+    }
+    #mensaje-confirmacion, #mensaje-error {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      display: none;
+      z-index: 1000;
     }
     #mensaje-confirmacion {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background-color: #4CAF50;
+      background-color: #28a745;
       color: white;
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
-      z-index: 1000;
     }
     #mensaje-error {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background-color: #f44336;
+      background-color: #dc3545;
       color: white;
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
+    }
+    #ubicar-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
       z-index: 1000;
+      padding: 8px 14px;
+      background-color: #343a40;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #ubicar-btn:hover {
+      background-color: #23272b;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <button onclick="ubicarUsuario()" style="position: absolute; top: 10px; left: 10px; z-index: 1000; padding: 6px 12px;">
-  📍 Ubicarme
-  </button>
+  <button id="ubicar-btn" onclick="ubicarUsuario()"><i class="fas fa-location-crosshairs"></i> Ubicarme</button>
 
   <div id="mensaje-confirmacion">✅ Dato guardado correctamente</div>
-  <div id="mensaje-error">⚠️ Por favor completa todos los campos obligatorios</div>
+  <div id="mensaje-error">⚠️ Por favor completa los campos obligatorios</div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -64,171 +109,90 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    fetch('AT_Leon.geojson')
-      .then(resp => resp.json())
-      .then(data => {
-        L.geoJSON(data, {
-          onEachFeature: function (feature, layer) {
-            const props = feature.properties;
-           layer.on('click', function () {
-            const seccion = props.SECCION || 'N/D';
-            const distritoF = props.DISTRITO_F || 'N/D';
-            const distritoL = props.DISTRITO_L || 'N/D';
-          
-            const popupContent = `
-              <strong>Sección:</strong> ${seccion}<br>
-              <strong>Distrito Federal:</strong> ${distritoF}<br>
-              <strong>Distrito Local:</strong> ${distritoL}
-            `;
-            layer.bindPopup(popupContent).openPopup();
-});
-
-          }
-        }).addTo(map);
-      });
-
-    function guardarDato(seccion, lat, lng) {
-  const tipo = document.getElementById('tipo').value.trim();
-  const nombre = document.getElementById('nombre').value.trim();
-  const paterno = document.getElementById('paterno').value.trim();
-  const materno = document.getElementById('materno').value.trim();
-  const calle = document.getElementById('calle').value.trim();
-  const numero = document.getElementById('numero').value.trim();
-  const telefono = document.getElementById('telefono').value.trim();
-  const observaciones = document.getElementById('observaciones').value.trim();
-  const fecha = new Date().toISOString();
-
-  if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
-    mostrarMensaje('error');
-    return;
-  }
-
-  const nuevoDato = {
-    seccion,
-    lat,
-    lng,
-    tipo,
-    nombre,
-    paterno,
-    materno,
-    calle,
-    numero,
-    telefono,
-    observaciones,
-    fecha
-  };
-
-  console.log("✅ Dato capturado:", nuevoDato);
-
-  // Definir color según tipo
-  let color = '#000000'; // valor por defecto
-  switch (tipo) {
-    case 'Simpatizante':
-      color = '#800000'; // Guinda
-      break;
-    case 'Casilla':
-      color = '#2e8b57'; // Verde
-      break;
-    case 'Liderazgo':
-      color = '#ff8c00'; // Naranja
-      break;
-    case 'Activista rival':
-      color = '#dc143c'; // Rojo
-      break;
-  }
-
-  // Agregar marcador de color
-  L.circleMarker([lat, lng], {
-    radius: 8,
-    color: color,
-    fillColor: color,
-    fillOpacity: 0.8
-  })
-    .addTo(map)
-    .bindPopup(`<strong>${tipo}</strong><br>${nombre} ${paterno}<br>${calle} ${numero}`)
-    .openPopup();
-
-  map.closePopup(); // cierra el formulario
-  mostrarMensaje('confirmacion');
-}
-
-function mostrarMensaje(tipo) {
-      const mensajeOk = document.getElementById('mensaje-confirmacion');
-      const mensajeError = document.getElementById('mensaje-error');
-      if (tipo === 'confirmacion') {
-        mensajeOk.style.display = 'block';
-        setTimeout(() => { mensajeOk.style.display = 'none'; }, 3000);
-      } else if (tipo === 'error') {
-        mensajeError.style.display = 'block';
-        setTimeout(() => { mensajeError.style.display = 'none'; }, 3000);
+    function ubicarUsuario() {
+      if (!navigator.geolocation) {
+        alert("La geolocalización no es compatible con este navegador.");
+        return;
       }
+
+      navigator.geolocation.getCurrentPosition(function (position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        const formHtml = `
+          <div class="form-popup">
+            <label><i class="fas fa-user-tag"></i>Tipo de dato *</label>
+            <select id="tipo">
+              <option value="">--Selecciona--</option>
+              <option value="Simpatizante">Simpatizante</option>
+              <option value="Casilla">Casilla</option>
+              <option value="Liderazgo">Liderazgo</option>
+              <option value="Activista rival">Activista rival</option>
+            </select>
+
+            <label><i class="fas fa-user"></i>Nombre *</label>
+            <input type="text" id="nombre" placeholder="Nombre">
+
+            <label><i class="fas fa-user"></i>Apellido paterno *</label>
+            <input type="text" id="paterno" placeholder="Apellido paterno">
+
+            <label><i class="fas fa-user"></i>Apellido materno</label>
+            <input type="text" id="materno" placeholder="Apellido materno (opcional)">
+
+            <label><i class="fas fa-road"></i>Calle *</label>
+            <input type="text" id="calle" placeholder="Ej. Calle Hidalgo">
+
+            <label><i class="fas fa-home"></i>Número exterior *</label>
+            <input type="text" id="numero" placeholder="Ej. 102-B">
+
+            <label><i class="fas fa-phone"></i>Teléfono *</label>
+            <input type="text" id="telefono" placeholder="10 dígitos">
+
+            <label><i class="fas fa-comment-dots"></i>Observaciones</label>
+            <textarea id="observaciones" rows="2" placeholder="Notas adicionales..."></textarea>
+
+            <label><i class="fas fa-map-marker-alt"></i>Latitud:</label>
+            <input type="text" id="latitud" readonly value="${lat.toFixed(6)}">
+
+            <label><i class="fas fa-map-marker-alt"></i>Longitud:</label>
+            <input type="text" id="longitud" readonly value="${lng.toFixed(6)}">
+
+            <button onclick="guardarDato('${lat}', '${lng}')"><i class="fas fa-save"></i> Guardar</button>
+          </div>`;
+
+        const marker = L.marker([lat, lng]).addTo(map);
+        marker.bindPopup(formHtml).openPopup();
+        map.setView([lat, lng], 16);
+      }, function (err) {
+        alert("Error al obtener ubicación: " + err.message);
+      });
     }
 
-function ubicarUsuario() {
-  if (!navigator.geolocation) {
-    alert("La geolocalización no es compatible con este navegador.");
-    return;
-  }
+    function guardarDato(lat, lng) {
+      const tipo = document.getElementById("tipo").value.trim();
+      const nombre = document.getElementById("nombre").value.trim();
+      const paterno = document.getElementById("paterno").value.trim();
+      const calle = document.getElementById("calle").value.trim();
+      const numero = document.getElementById("numero").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+      if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
+        mostrarMensaje('error');
+        return;
+      }
+      mostrarMensaje('confirmacion');
+    }
 
-  navigator.geolocation.getCurrentPosition(function (position) {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-
-    // Crear el formulario con campos lat/lng
-    const formHtml = `
-      <form onsubmit="guardarDato(event)">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" required><br>
-        <label for="paterno">Paterno:</label>
-        <input type="text" id="paterno" name="paterno" required><br>
-        <label for="materno">Materno:</label>
-        <input type="text" id="materno" name="materno"><br>
-        <label for="telefono">Teléfono:</label>
-        <input type="tel" id="telefono" name="telefono" required><br>
-        <label for="calle">Calle:</label>
-        <input type="text" id="calle" name="calle" required><br>
-        <label for="numero">Número:</label>
-        <input type="text" id="numero" name="numero"><br>
-        <label for="tipo">Tipo:</label>
-        <select id="tipo" name="tipo" required>
-          <option value="SIMPATIZANTE">SIMPATIZANTE</option>
-          <option value="CASILLA">CASILLA</option>
-          <option value="LIDERAZGO">LIDERAZGO</option>
-          <option value="ACTIVISTA RIVAL">ACTIVISTA RIVAL</option>
-        </select><br>
-        <label for="observaciones">Observaciones:</label><br>
-        <textarea id="observaciones" name="observaciones" rows="2" cols="30"></textarea><br>
-
-        <label for="latitud">Latitud:</label>
-        <input type="text" id="latitud" name="latitud" readonly><br>
-        <label for="longitud">Longitud:</label>
-        <input type="text" id="longitud" name="longitud" readonly><br>
-
-        <button type="submit">Guardar</button>
-      </form>
-    `;
-
-    // Agregar marcador con popup de formulario
-    const marker = L.marker([lat, lng], { draggable: false }).addTo(map);
-    marker.bindPopup(formHtml).openPopup();
-
-    // Centrar el mapa en la ubicación
-    map.setView([lat, lng], 16);
-
-    // Llenar automáticamente los campos lat/lng
-    setTimeout(() => {
-      document.getElementById("latitud").value = lat.toFixed(6);
-      document.getElementById("longitud").value = lng.toFixed(6);
-    }, 300);
-
-  }, function (error) {
-    alert("No se pudo obtener tu ubicación.");
-    console.error(error);
-  });
-}
-
-
-    
+    function mostrarMensaje(tipo) {
+      const ok = document.getElementById("mensaje-confirmacion");
+      const err = document.getElementById("mensaje-error");
+      if (tipo === 'confirmacion') {
+        ok.style.display = 'block';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      } else {
+        err.style.display = 'block';
+        setTimeout(() => err.style.display = 'none', 3000);
+      }
+    }
   </script>
 </body>
 </html>
