@@ -112,6 +112,13 @@
                   <label for="observaciones">Observaciones</label>
                   <textarea id="observaciones" rows="2" placeholder="Notas adicionales..."></textarea>
 
+                  <label for="latitud">Latitud:</label>
+                  <input type="text" id="latitud" name="latitud" readonly><br>
+
+                  <label for="longitud">Longitud:</label>
+                  <input type="text" id="longitud" name="longitud" readonly><br>
+                  
+
                   <button onclick="guardarDato('${seccion}', ${latlng.lat}, ${latlng.lng})">Guardar</button>
                 </div>`;
 
