@@ -49,6 +49,10 @@
 </head>
 <body>
   <div id="map"></div>
+  <button onclick="ubicarUsuario()" style="position: absolute; top: 10px; left: 10px; z-index: 1000; padding: 6px 12px;">
+  📍 Ubicarme
+  </button>
+
   <div id="mensaje-confirmacion">✅ Dato guardado correctamente</div>
   <div id="mensaje-error">⚠️ Por favor completa todos los campos obligatorios</div>
 
@@ -182,8 +186,7 @@
   mostrarMensaje('confirmacion');
 }
 
-
-    function mostrarMensaje(tipo) {
+function mostrarMensaje(tipo) {
       const mensajeOk = document.getElementById('mensaje-confirmacion');
       const mensajeError = document.getElementById('mensaje-error');
       if (tipo === 'confirmacion') {
@@ -194,6 +197,38 @@
         setTimeout(() => { mensajeError.style.display = 'none'; }, 3000);
       }
     }
+
+function ubicarUsuario() {
+  if (!navigator.geolocation) {
+    alert("La geolocalización no es compatible con este navegador.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(function(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    // Agrega un marcador azul
+    L.circleMarker([lat, lng], {
+      radius: 8,
+      color: '#1E90FF',        // Azul
+      fillColor: '#1E90FF',
+      fillOpacity: 0.8
+    })
+    .addTo(map)
+    .bindPopup("📍 Estás aquí")
+    .openPopup();
+
+    // Centra el mapa en la ubicación actual
+    map.setView([lat, lng], 16);
+
+  }, function(error) {
+    alert("No se pudo obtener tu ubicación.");
+    console.error(error);
+  });
+}
+
+    
   </script>
 </body>
 </html>
