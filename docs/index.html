@@ -14,11 +14,14 @@
       font-size: 14px;
     }
 
-    .form-popup {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+   .form-popup {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 300px; /* Puedes probar con 320px, 350px, etc. */
+      max-width: 90vw; /* Esto asegura que no se salga del ancho de pantalla */
     }
+
 
     .form-popup label {
       grid-column: span 2;
