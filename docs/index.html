@@ -123,6 +123,15 @@
                 </div>`;
 
               layer.bindPopup(formHtml).openPopup();
+              setTimeout(() => {
+                  const latInput = document.getElementById("latitud");
+                  const lngInput = document.getElementById("longitud");
+                  if (latInput && lngInput) {
+                    latInput.value = layer.getLatLng().lat.toFixed(6);
+                    lngInput.value = layer.getLatLng().lng.toFixed(6);
+                  }
+                }, 300);
+
             });
           }
         }).addTo(map);
