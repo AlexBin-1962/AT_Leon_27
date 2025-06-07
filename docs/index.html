@@ -109,6 +109,31 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    fetch('AT_Leon.geojson')
+  .then(resp => resp.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: {
+        color: "#555",
+        weight: 1,
+        fillOpacity: 0.1
+      },
+      onEachFeature: function (feature, layer) {
+        const props = feature.properties;
+        layer.on('click', function () {
+          const popupContent = `
+            <strong>Sección:</strong> ${props.SECCION}<br>
+            <strong>Distrito Federal:</strong> ${props.DISTRITO_F}<br>
+            <strong>Distrito Local:</strong> ${props.DISTRITO_L}
+          `;
+          layer.bindPopup(popupContent).openPopup();
+        });
+      }
+    }).addTo(map);
+  })
+  .catch(error => console.error("Error al cargar GeoJSON:", error));
+
+
     function ubicarUsuario() {
       if (!navigator.geolocation) {
         alert("La geolocalización no es compatible con este navegador.");
