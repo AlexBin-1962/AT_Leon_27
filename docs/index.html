@@ -79,7 +79,7 @@
                   Distrito L: ${distritoL}<br><br>
 
                   <label for="tipo">Tipo de dato *</label>
-                  <select id="tipo" required>
+                  <select id="tipo">
                     <option value="">--Selecciona--</option>
                     <option value="Simpatizante">Simpatizante</option>
                     <option value="Casilla">Casilla</option>
@@ -87,11 +87,20 @@
                     <option value="Activista rival">Activista rival</option>
                   </select>
 
-                  <label for="nombre">Nombre completo *</label>
-                  <input type="text" id="nombre" placeholder="Nombre completo">
+                  <label for="nombre">Nombre *</label>
+                  <input type="text" id="nombre" placeholder="Nombre">
 
-                  <label for="direccion">Domicilio *</label>
-                  <input type="text" id="direccion" placeholder="Calle, número, colonia">
+                  <label for="paterno">Apellido paterno *</label>
+                  <input type="text" id="paterno" placeholder="Apellido paterno">
+
+                  <label for="materno">Apellido materno</label>
+                  <input type="text" id="materno" placeholder="Apellido materno (opcional)">
+
+                  <label for="calle">Calle *</label>
+                  <input type="text" id="calle" placeholder="Ej. Calle Hidalgo">
+
+                  <label for="numero">Número exterior *</label>
+                  <input type="text" id="numero" placeholder="Ej. 102-B">
 
                   <label for="telefono">Teléfono *</label>
                   <input type="text" id="telefono" placeholder="10 dígitos">
@@ -111,12 +120,15 @@
     function guardarDato(seccion, lat, lng) {
       const tipo = document.getElementById('tipo').value.trim();
       const nombre = document.getElementById('nombre').value.trim();
-      const direccion = document.getElementById('direccion').value.trim();
+      const paterno = document.getElementById('paterno').value.trim();
+      const materno = document.getElementById('materno').value.trim();
+      const calle = document.getElementById('calle').value.trim();
+      const numero = document.getElementById('numero').value.trim();
       const telefono = document.getElementById('telefono').value.trim();
       const observaciones = document.getElementById('observaciones').value.trim();
       const fecha = new Date().toISOString();
 
-      if (!tipo || !nombre || !direccion || !telefono) {
+      if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
         mostrarMensaje('error');
         return;
       }
@@ -127,7 +139,10 @@
         lng,
         tipo,
         nombre,
-        direccion,
+        paterno,
+        materno,
+        calle,
+        numero,
         telefono,
         observaciones,
         fecha
@@ -137,7 +152,7 @@
 
       L.marker([lat, lng])
         .addTo(map)
-        .bindPopup(`<strong>${tipo}</strong><br>${nombre}<br>${direccion}`)
+        .bindPopup(`<strong>${tipo}</strong><br>${nombre} ${paterno}<br>${calle} ${numero}`)
         .openPopup();
 
       map.closePopup(); // cierra el formulario
