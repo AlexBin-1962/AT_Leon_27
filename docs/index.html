@@ -1,97 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>App de Campo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>App de Campo - Captura de Datos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    html, body, #map { height: 100%; margin: 0; }
-
-    .leaflet-popup-content {
-      font-family: Arial, sans-serif;
-      font-size: 14px;
+    html, body, #map {
+      height: 100%;
+      margin: 0;
     }
-
-   .form-popup {
+    .leaflet-popup-content {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .form-popup {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      width: 250px; /* Puedes probar con 320px, 350px, etc. */
-      max-width: 75vw; /* Esto asegura que no se salga del ancho de pantalla */
+      width: 90vw;
+      max-width: 400px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
-
-
-    .form-popup label {
-      grid-column: span 2;
-      font-weight: bold;
-      margin-top: 4px;
-    }
-
-    .form-popup input,
-    .form-popup select,
-    .form-popup textarea {
-      grid-column: span 2;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    input, select, textarea, button {
+      padding: 4px;
       font-size: 14px;
     }
-
-    .form-popup button {
-      grid-column: span 2;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .form-popup button:hover {
-      background-color: #45a049;
-    }
-
     #mensaje-confirmacion, #mensaje-error {
       position: fixed;
       top: 10px;
       right: 10px;
-      padding: 10px 14px;
-      border-radius: 6px;
       color: white;
+      padding: 10px;
+      border-radius: 5px;
       display: none;
       z-index: 1000;
     }
-
     #mensaje-confirmacion { background-color: #4CAF50; }
     #mensaje-error { background-color: #f44336; }
 
-    #btn-ubicar {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 1000;
-      background: #1e90ff;
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
+    @media (min-width: 768px) {
+      .form-popup { width: 420px; }
     }
 
-    #btn-ubicar:hover {
-      background: #187bcd;
+    @media (min-width: 1024px) {
+      .form-popup { width: 480px; }
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <button id="btn-ubicar" onclick="ubicarUsuario()">📍 Ubicarme</button>
+  <button onclick="ubicarUsuario()" style="position: absolute; top: 10px; left: 10px; z-index: 1000; padding: 6px 12px;">
+    📍 Ubicarme
+  </button>
   <div id="mensaje-confirmacion">✅ Dato guardado correctamente</div>
-  <div id="mensaje-error">⚠️ Completa los campos obligatorios</div>
+  <div id="mensaje-error">⚠️ Por favor completa todos los campos obligatorios</div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -100,43 +66,19 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Cargar secciones del GeoJSON
-    fetch('AT_Leon.geojson')
-      .then(resp => resp.json())
-      .then(data => {
-        L.geoJSON(data, {
-          style: {
-            color: "#777",
-            weight: 1,
-            fillOpacity: 0.05
-          },
-          onEachFeature: function (feature, layer) {
-            const props = feature.properties;
-            layer.on('click', function () {
-              const content = `
-                <strong>Sección:</strong> ${props.SECCION}<br>
-                <strong>Distrito Federal:</strong> ${props.DISTRITO_F}<br>
-                <strong>Distrito Local:</strong> ${props.DISTRITO_L}
-              `;
-              layer.bindPopup(content).openPopup();
-            });
-          }
-        }).addTo(map);
-      });
-
     function ubicarUsuario() {
       if (!navigator.geolocation) {
-        alert("Tu navegador no soporta geolocalización.");
+        alert("La geolocalización no es compatible con este navegador.");
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(function (pos) {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
+      navigator.geolocation.getCurrentPosition(function (position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
         const formHtml = `
           <div class="form-popup">
-            <label><i class="fa-solid fa-users-viewfinder"></i> Tipo de dato *</label>
+            <label for="tipo">Tipo de dato *</label>
             <select id="tipo">
               <option value="">--Selecciona--</option>
               <option value="Simpatizante">Simpatizante</option>
@@ -145,43 +87,42 @@
               <option value="Activista rival">Activista rival</option>
             </select>
 
-            <label><i class="fa-solid fa-user"></i> Nombre *</label>
-            <input id="nombre" placeholder="Nombre">
+            <label for="nombre">Nombre *</label>
+            <input type="text" id="nombre" placeholder="Nombre">
 
-            <label><i class="fa-solid fa-user"></i> Apellido Paterno *</label>
-            <input id="paterno" placeholder="Paterno">
+            <label for="paterno">Apellido paterno *</label>
+            <input type="text" id="paterno" placeholder="Apellido paterno">
 
-            <label><i class="fa-solid fa-user"></i> Apellido Materno</label>
-            <input id="materno" placeholder="Materno (opcional)">
+            <label for="materno">Apellido materno</label>
+            <input type="text" id="materno" placeholder="Apellido materno (opcional)">
 
-            <label><i class="fa-solid fa-location-dot"></i> Calle *</label>
-            <input id="calle" placeholder="Ej. Av. Hidalgo">
+            <label for="calle">Calle *</label>
+            <input type="text" id="calle" placeholder="Ej. Calle Hidalgo">
 
-            <label><i class="fa-solid fa-hashtag"></i> Número exterior *</label>
-            <input id="numero" placeholder="Ej. 102-B">
+            <label for="numero">Número exterior *</label>
+            <input type="text" id="numero" placeholder="Ej. 102-B">
 
-            <label><i class="fa-solid fa-phone"></i> Teléfono *</label>
-            <input id="telefono" placeholder="10 dígitos">
+            <label for="telefono">Teléfono *</label>
+            <input type="text" id="telefono" placeholder="10 dígitos">
 
-            <label><i class="fa-solid fa-pen"></i> Observaciones</label>
-            <textarea id="observaciones" rows="2"></textarea>
+            <label for="observaciones">Observaciones</label>
+            <textarea id="observaciones" rows="2" placeholder="Notas adicionales..."></textarea>
 
-            <label><i class="fa-solid fa-location-crosshairs"></i> Latitud:</label>
-            <input id="latitud" value="${lat.toFixed(6)}" readonly>
+            <label for="latitud">Latitud:</label>
+            <input type="text" id="latitud" value="${lat.toFixed(6)}" readonly>
 
-            <label><i class="fa-solid fa-location-crosshairs"></i> Longitud:</label>
-            <input id="longitud" value="${lng.toFixed(6)}" readonly>
+            <label for="longitud">Longitud:</label>
+            <input type="text" id="longitud" value="${lng.toFixed(6)}" readonly>
 
             <button onclick="guardarDato(${lat}, ${lng})">Guardar</button>
-          </div>
-        `;
+          </div>`;
 
         const marker = L.marker([lat, lng]).addTo(map);
         marker.bindPopup(formHtml).openPopup();
         map.setView([lat, lng], 16);
-      }, err => {
-        alert("Error de geolocalización.");
-        console.error(err);
+      }, function (error) {
+        alert("No se pudo obtener tu ubicación.");
+        console.error(error);
       });
     }
 
@@ -194,46 +135,40 @@
       const numero = document.getElementById('numero').value.trim();
       const telefono = document.getElementById('telefono').value.trim();
       const observaciones = document.getElementById('observaciones').value.trim();
-      const fecha = new Date().toISOString();
 
       if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
-        mostrarMensaje("error");
+        mostrarMensaje('error');
         return;
       }
 
-      const color = {
-        'Simpatizante': '#800000',
-        'Casilla': '#2e8b57',
-        'Liderazgo': '#ff8c00',
-        'Activista rival': '#dc143c'
-      }[tipo] || '#333';
+      const color = tipo === 'Simpatizante' ? '#800000' :
+                    tipo === 'Casilla' ? '#2e8b57' :
+                    tipo === 'Liderazgo' ? '#ff8c00' :
+                    tipo === 'Activista rival' ? '#dc143c' : '#000000';
 
       L.circleMarker([lat, lng], {
         radius: 8,
         color: color,
         fillColor: color,
         fillOpacity: 0.8
-      }).addTo(map)
+      })
+        .addTo(map)
         .bindPopup(`<strong>${tipo}</strong><br>${nombre} ${paterno}<br>${calle} ${numero}`)
         .openPopup();
 
       map.closePopup();
-      mostrarMensaje("confirmacion");
-      console.log("✅ Dato capturado:", {
-        tipo, nombre, paterno, materno, calle, numero,
-        telefono, observaciones, lat, lng, fecha
-      });
+      mostrarMensaje('confirmacion');
     }
 
     function mostrarMensaje(tipo) {
-      const ok = document.getElementById('mensaje-confirmacion');
-      const error = document.getElementById('mensaje-error');
-      if (tipo === "confirmacion") {
-        ok.style.display = "block";
-        setTimeout(() => { ok.style.display = "none"; }, 3000);
-      } else {
-        error.style.display = "block";
-        setTimeout(() => { error.style.display = "none"; }, 3000);
+      const mensajeOk = document.getElementById('mensaje-confirmacion');
+      const mensajeError = document.getElementById('mensaje-error');
+      if (tipo === 'confirmacion') {
+        mensajeOk.style.display = 'block';
+        setTimeout(() => { mensajeOk.style.display = 'none'; }, 3000);
+      } else if (tipo === 'error') {
+        mensajeError.style.display = 'block';
+        setTimeout(() => { mensajeError.style.display = 'none'; }, 3000);
       }
     }
   </script>
