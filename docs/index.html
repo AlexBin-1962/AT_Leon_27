@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>App de Campo - Captura de Datos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App de Campo - Captura de Datos</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     html, body, #map {
@@ -12,50 +12,50 @@
     }
     .leaflet-popup-content {
       font-size: 14px;
-      line-height: 1.4;
     }
     .form-popup {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      width: 90vw;
-      max-width: 400px;
-      padding: 10px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      gap: 8px;
+      width: 300px;
+    }
+    .form-popup h3 {
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 16px;
+      border-bottom: 1px solid #ccc;
     }
     input, select, textarea, button {
-      padding: 4px;
+      padding: 6px;
       font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    label::before {
+      content: attr(data-icon) ' ';
     }
     #mensaje-confirmacion, #mensaje-error {
       position: fixed;
       top: 10px;
       right: 10px;
-      color: white;
       padding: 10px;
       border-radius: 5px;
-      display: none;
       z-index: 1000;
+      display: none;
     }
-    #mensaje-confirmacion { background-color: #4CAF50; }
-    #mensaje-error { background-color: #f44336; }
-
-    @media (min-width: 768px) {
-      .form-popup { width: 420px; }
+    #mensaje-confirmacion {
+      background-color: #4CAF50;
+      color: white;
     }
-
-    @media (min-width: 1024px) {
-      .form-popup { width: 480px; }
+    #mensaje-error {
+      background-color: #f44336;
+      color: white;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <button onclick="ubicarUsuario()" style="position: absolute; top: 10px; left: 10px; z-index: 1000; padding: 6px 12px;">
-    📍 Ubicarme
-  </button>
+  <button onclick="ubicarUsuario()" style="position:absolute;top:10px;left:10px;z-index:1000;padding:6px 12px;background-color:#007bff;color:#fff;border:none;border-radius:4px;">📍 Ubicarme</button>
   <div id="mensaje-confirmacion">✅ Dato guardado correctamente</div>
   <div id="mensaje-error">⚠️ Por favor completa todos los campos obligatorios</div>
 
@@ -66,109 +66,123 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    fetch('AT_Leon.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            const props = feature.properties;
+            layer.on('click', function () {
+              const content = `
+                <strong>Sección:</strong> ${props.SECCION || 'N/D'}<br>
+                <strong>Distrito F:</strong> ${props.DISTRITO_F || 'N/D'}<br>
+                <strong>Distrito L:</strong> ${props.DISTRITO_L || 'N/D'}`;
+              layer.bindPopup(content).openPopup();
+            });
+          }
+        }).addTo(map);
+      });
+
     function ubicarUsuario() {
       if (!navigator.geolocation) {
-        alert("La geolocalización no es compatible con este navegador.");
+        alert("Geolocalización no disponible.");
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(function (position) {
+      navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
         const formHtml = `
-          <div class="form-popup">
-            <label for="tipo">Tipo de dato *</label>
-            <select id="tipo">
+          <form onsubmit="guardarDato(event, ${lat}, ${lng})" class="form-popup">
+            <h3>📄 Datos Personales</h3>
+            <label data-icon="👤" for="nombre">Nombre *</label>
+            <input type="text" id="nombre" required>
+            <label data-icon="👤" for="paterno">Apellido paterno *</label>
+            <input type="text" id="paterno" required>
+            <label data-icon="👤" for="materno">Apellido materno</label>
+            <input type="text" id="materno">
+            <label data-icon="📞" for="telefono">Teléfono *</label>
+            <input type="tel" id="telefono" required>
+
+            <h3>📍 Ubicación</h3>
+            <label data-icon="🏠" for="calle">Calle *</label>
+            <input type="text" id="calle" required>
+            <label data-icon="🔢" for="numero">Número *</label>
+            <input type="text" id="numero" required>
+            <label data-icon="📡" for="zona">Tipo de zona</label>
+            <select id="zona">
               <option value="">--Selecciona--</option>
-              <option value="Simpatizante">Simpatizante</option>
-              <option value="Casilla">Casilla</option>
-              <option value="Liderazgo">Liderazgo</option>
-              <option value="Activista rival">Activista rival</option>
+              <option>Urbana</option>
+              <option>Rural</option>
+              <option>Marginada</option>
+              <option>Conurbada</option>
+            </select>
+            <label data-icon="📶" for="cobertura">¿Cobertura celular?</label>
+            <select id="cobertura">
+              <option>Sí</option>
+              <option>No</option>
             </select>
 
-            <label for="nombre">Nombre *</label>
-            <input type="text" id="nombre" placeholder="Nombre">
+            <h3>🗳️ Clasificación</h3>
+            <label data-icon="🏷️" for="tipo">Tipo *</label>
+            <select id="tipo" required>
+              <option value="">--Selecciona--</option>
+              <option>Simpatizante</option>
+              <option>Casilla</option>
+              <option>Liderazgo</option>
+              <option>Activista rival</option>
+            </select>
+            <label data-icon="🎯" for="prioridad">Nivel de prioridad</label>
+            <select id="prioridad">
+              <option>Alta</option>
+              <option>Media</option>
+              <option>Baja</option>
+            </select>
+            <label data-icon="🧭" for="influencia">Categoría de influencia</label>
+            <select id="influencia">
+              <option>Zona clave</option>
+              <option>Zona volátil</option>
+              <option>Zona consolidada</option>
+            </select>
 
-            <label for="paterno">Apellido paterno *</label>
-            <input type="text" id="paterno" placeholder="Apellido paterno">
+            <h3>📸 Foto / Evidencia</h3>
+            <input type="file" accept="image/*" capture="environment">
 
-            <label for="materno">Apellido materno</label>
-            <input type="text" id="materno" placeholder="Apellido materno (opcional)">
+            <h3>📝 Observaciones</h3>
+            <textarea id="observaciones" rows="2" placeholder="🎤 Puedes dictar tocando el micrófono del teclado..."></textarea>
 
-            <label for="calle">Calle *</label>
-            <input type="text" id="calle" placeholder="Ej. Calle Hidalgo">
+            <h3>🌐 Sistema</h3>
+            <label>Latitud</label><input type="text" readonly value="${lat.toFixed(6)}">
+            <label>Longitud</label><input type="text" readonly value="${lng.toFixed(6)}">
+            <label>Fecha</label><input type="text" readonly value="${new Date().toLocaleString()}">
 
-            <label for="numero">Número exterior *</label>
-            <input type="text" id="numero" placeholder="Ej. 102-B">
+            <button type="submit">Guardar</button>
+            <button type="button" onclick="map.closePopup()">Cancelar</button>
+          </form>
+        `;
 
-            <label for="telefono">Teléfono *</label>
-            <input type="text" id="telefono" placeholder="10 dígitos">
-
-            <label for="observaciones">Observaciones</label>
-            <textarea id="observaciones" rows="2" placeholder="Notas adicionales..."></textarea>
-
-            <label for="latitud">Latitud:</label>
-            <input type="text" id="latitud" value="${lat.toFixed(6)}" readonly>
-
-            <label for="longitud">Longitud:</label>
-            <input type="text" id="longitud" value="${lng.toFixed(6)}" readonly>
-
-            <button onclick="guardarDato(${lat}, ${lng})">Guardar</button>
-          </div>`;
-
-        const marker = L.marker([lat, lng]).addTo(map);
-        marker.bindPopup(formHtml).openPopup();
+        L.marker([lat, lng]).addTo(map).bindPopup(formHtml).openPopup();
         map.setView([lat, lng], 16);
-      }, function (error) {
-        alert("No se pudo obtener tu ubicación.");
-        console.error(error);
       });
     }
 
-    function guardarDato(lat, lng) {
-      const tipo = document.getElementById('tipo').value.trim();
-      const nombre = document.getElementById('nombre').value.trim();
-      const paterno = document.getElementById('paterno').value.trim();
-      const materno = document.getElementById('materno').value.trim();
-      const calle = document.getElementById('calle').value.trim();
-      const numero = document.getElementById('numero').value.trim();
-      const telefono = document.getElementById('telefono').value.trim();
-      const observaciones = document.getElementById('observaciones').value.trim();
-
-      if (!tipo || !nombre || !paterno || !calle || !numero || !telefono) {
-        mostrarMensaje('error');
-        return;
-      }
-
-      const color = tipo === 'Simpatizante' ? '#800000' :
-                    tipo === 'Casilla' ? '#2e8b57' :
-                    tipo === 'Liderazgo' ? '#ff8c00' :
-                    tipo === 'Activista rival' ? '#dc143c' : '#000000';
-
-      L.circleMarker([lat, lng], {
-        radius: 8,
-        color: color,
-        fillColor: color,
-        fillOpacity: 0.8
-      })
-        .addTo(map)
-        .bindPopup(`<strong>${tipo}</strong><br>${nombre} ${paterno}<br>${calle} ${numero}`)
-        .openPopup();
-
-      map.closePopup();
+    function guardarDato(e, lat, lng) {
+      e.preventDefault();
+      // Aquí iría la lógica de guardado a futuro
       mostrarMensaje('confirmacion');
+      map.closePopup();
     }
 
     function mostrarMensaje(tipo) {
-      const mensajeOk = document.getElementById('mensaje-confirmacion');
-      const mensajeError = document.getElementById('mensaje-error');
+      const ok = document.getElementById('mensaje-confirmacion');
+      const error = document.getElementById('mensaje-error');
       if (tipo === 'confirmacion') {
-        mensajeOk.style.display = 'block';
-        setTimeout(() => { mensajeOk.style.display = 'none'; }, 3000);
-      } else if (tipo === 'error') {
-        mensajeError.style.display = 'block';
-        setTimeout(() => { mensajeError.style.display = 'none'; }, 3000);
+        ok.style.display = 'block';
+        setTimeout(() => ok.style.display = 'none', 3000);
+      } else {
+        error.style.display = 'block';
+        setTimeout(() => error.style.display = 'none', 3000);
       }
     }
   </script>
