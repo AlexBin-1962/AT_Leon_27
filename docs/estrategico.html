@@ -9,19 +9,51 @@
   <style>
     body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     #map { height: 100vh; }
+
     header {
       position: fixed;
       top: 0;
       width: 100%;
-      background: #003366;
+      background: linear-gradient(to right, #003366, #0055aa);
       color: white;
       padding: 10px 20px;
       z-index: 999;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    header h1 { font-size: 18px; margin: 0; }
+
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #btnBuscar {
+      position: absolute;
+      top: 70px;
+      left: 10px;
+      z-index: 1000;
+      background-color: #005bac;
+      color: white;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+
+    #input-seccion {
+      width: 80px;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-right: 5px;
+    }
+
     #sidebar {
       position: fixed;
       right: 0;
@@ -35,8 +67,18 @@
       padding: 20px;
       display: none;
       z-index: 998;
+      animation: slideIn 0.4s ease forwards;
     }
-    #sidebar.active { display: block; }
+
+    @keyframes slideIn {
+      from { right: -400px; opacity: 0; }
+      to { right: 0; opacity: 1; }
+    }
+
+    #sidebar.active {
+      display: block;
+    }
+
     .badge {
       display: inline-block;
       background: #003366;
@@ -46,8 +88,20 @@
       margin-right: 6px;
       font-size: 13px;
     }
-    .tab { display: none; }
-    .tab.active { display: block; }
+
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .tab-buttons {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
     .tab-buttons button {
       margin-right: 5px;
       background: #ccc;
@@ -55,10 +109,23 @@
       padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
+
+    .tab-buttons button:hover {
+      background-color: #bbb;
+    }
+
     .tab-buttons button.active {
       background: #003366;
       color: white;
+    }
+
+    canvas {
+      background-color: white;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+      border-radius: 6px;
+      padding: 10px;
     }
   </style>
 </head>
@@ -67,153 +134,28 @@
     <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
     <img src="logo.png" alt="Logo" style="height: 30px;">
   </header>
+
   <div id="map"></div>
+
+  <button id="btnBuscar" onclick="buscarSeccionUI()">
+    <input type="number" id="input-seccion" placeholder="Sección" />
+    <i class="ti ti-search"></i> Buscar
+  </button>
+
   <div id="sidebar">
     <h2 id="titulo-seccion">Sección 0000</h2>
     <div id="info-seccion"></div>
     <div class="tab-buttons">
-      <button onclick="mostrarTab('historial')" class="active">Historial</button>
-      <button onclick="mostrarTab('proyeccion')">Proyección</button>
-      <button onclick="mostrarTab('competencia')">Competencia</button>
-      <button onclick="mostrarTab('ganador')">Ganador</button>
+      <button onclick="mostrarTab('historial')" class="active"><i class="ti ti-history"></i> Historial</button>
+      <button onclick="mostrarTab('proyeccion')"><i class="ti ti-bar-chart"></i> Proyección</button>
+      <button onclick="mostrarTab('competencia')"><i class="ti ti-chart-pie"></i> Competencia</button>
+      <button onclick="mostrarTab('ganador')"><i class="ti ti-trophy"></i> Ganador</button>
     </div>
-    <div id="historial" class="tab active">
-      <canvas id="grafico-historial" width="300" height="200"></canvas>
-    </div>
-    <div id="proyeccion" class="tab">
-      <canvas id="grafico-proyeccion" width="300" height="200"></canvas>
-    </div>
-    <div id="competencia" class="tab">
-      <canvas id="grafico-competencia" width="300" height="200"></canvas>
-    </div>
-    <div id="ganador" class="tab">
-      <canvas id="grafico-ganador" width="300" height="200"></canvas>
-    </div>
+
+    <div id="historial" class="tab active"><canvas id="grafico-historial" width="300" height="200"></canvas></div>
+    <div id="proyeccion" class="tab"><canvas id="grafico-proyeccion" width="300" height="200"></canvas></div>
+    <div id="competencia" class="tab"><canvas id="grafico-competencia" width="300" height="200"></canvas></div>
+    <div id="ganador" class="tab"><canvas id="grafico-ganador" width="300" height="200"></canvas></div>
   </div>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const partidos = ['PAN', 'PRI', 'PVEM', 'MORENA'];
-    const colores = {
-      PAN: '#005DAA',
-      PRI: '#c1121f',
-      PVEM: '#228B22',
-      MORENA: '#800000',
-      'N/D': '#999'
-    };
-
-    const map = L.map('map').setView([21.12, -101.68], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    fetch('AT_Leon.geojson')
-      .then(res => res.json())
-      .then(data => {
-        L.geoJSON(data, {
-          onEachFeature: function(feature, layer) {
-            layer.on('click', function () {
-              const props = feature.properties;
-              document.getElementById('titulo-seccion').innerText = `Sección ${props.SECCION}`;
-              document.getElementById('info-seccion').innerHTML = `
-                <span class='badge'>DF ${props.DISTRITO_F}</span>
-                <span class='badge'>DL ${props.DISTRITO_L}</span>
-                <span class='badge'>LN ${props.LN_27}</span>`;
-              document.getElementById('sidebar').classList.add('active');
-              actualizarGraficas(props);
-            });
-          }
-        }).addTo(map);
-      });
-
-    function mostrarTab(tabId) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).classList.add('tab');
-      document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
-    }
-
-    let chartHist, chartProy, chartComp;
-    function actualizarGraficas(props) {
-      if (chartHist) chartHist.destroy();
-      if (chartProy) chartProy.destroy();
-      if (chartComp) chartComp.destroy();
-      if (window.chartGanador) window.chartGanador.destroy();
-
-      chartHist = new Chart(document.getElementById('grafico-historial'), {
-        type: 'line',
-        data: {
-          labels: ['2018', '2021', '2024'],
-          datasets: [
-            { label: 'PAN', data: [props['18A_PAN'], props['21A_PAN'], props['24A_PAN']], borderColor: '#005DAA', fill: false },
-            { label: 'PRI', data: [props['18A_PRI'], props['21A_PRI'], props['24A_PRI']], borderColor: '#c1121f', fill: false },
-            { label: 'PVEM', data: [props['18A_PVEM'], props['21A_PVEM'], props['24A_PVEM']], borderColor: '#228B22', fill: false },
-            { label: 'MORENA', data: [props['18A_MORENA'], props['21A_MORENA'], props['24A_MORENA']], borderColor: '#800000', fill: false }
-          ]
-        },
-        options: {
-          responsive: false,
-          plugins: { legend: { position: 'top' } },
-          scales: {
-            y: { title: { display: true, text: 'Votos por partido' }, beginAtZero: true },
-            x: { title: { display: true, text: 'Elección' } }
-          }
-        }
-      });
-
-      chartProy = new Chart(document.getElementById('grafico-proyeccion'), {
-        type: 'bar',
-        data: {
-          labels: partidos,
-          datasets: [{ label: 'Proyección 2027', data: [props.PROY_VOTOS_PAN_27A, props.PROY_VOTOS_PRI_27A, props.PROY_VOTOS_PVEM_27A, props.PROY_VOTOS_MORENA_27A], backgroundColor: Object.values(colores) }]
-        },
-        options: { responsive: false }
-      });
-
-      chartComp = new Chart(document.getElementById('grafico-competencia'), {
-        type: 'pie',
-        data: {
-          labels: partidos,
-          datasets: [{ data: [props.PROY_VOTOS_PAN_27A, props.PROY_VOTOS_PRI_27A, props.PROY_VOTOS_PVEM_27A, props.PROY_VOTOS_MORENA_27A], backgroundColor: Object.values(colores) }]
-        },
-        options: { responsive: false }
-      });
-
-      const ganadores = [
-        { año: '2018', partido: props.GANADOR_18A || 'N/D' },
-        { año: '2021', partido: props.GANADOR_21A || 'N/D' },
-        { año: '2024', partido: props.GANADOR_24A || 'N/D' }
-      ];
-
-      window.chartGanador = new Chart(document.getElementById('grafico-ganador'), {
-        type: 'bar',
-        data: {
-          labels: ganadores.map(g => g.año),
-          datasets: [{
-            label: 'Ganador',
-            data: [1, 1, 1],
-            backgroundColor: ganadores.map(g => colores[g.partido] || '#999')
-          }]
-        },
-        options: {
-          responsive: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  return `Ganador: ${ganadores[ctx.dataIndex].partido}`;
-                }
-              }
-            }
-          },
-          scales: {
-            y: { display: false },
-            x: { title: { display: true, text: 'Elección' } }
-          }
-        }
-      });
-    }
-  </script>
 </body>
 </html>
