@@ -1,176 +1,189 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Interactivo con Leaflet</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.min.css" />
-    <style>
-        #map { height: 100vh; z-index: 0; }
-        .search-container { padding: 10px; background-color: white; }
-        input[type="text"] { padding: 5px; width: 200px; }
-        button { padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #45a049; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APP Estratégica 2027</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
+  <style>
+    body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    #map { height: 100vh; }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            padding-top: 60px;
-        }
+    /* Header fijo */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #003366;
+      color: white;
+      padding: 10px 20px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+    }
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 50%;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    </style>
+    /* Sidebar panel */
+    #sidebar {
+      position: fixed;
+      right: 0;
+      top: 60px;
+      width: 360px;
+      height: calc(100% - 60px);
+      background: #f9f9f9;
+      border-left: 1px solid #ddd;
+      box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      padding: 20px;
+      display: none;
+      z-index: 998;
+    }
+    #sidebar.active { display: block; }
+    .badge {
+      display: inline-block;
+      background: #003366;
+      color: white;
+      border-radius: 4px;
+      padding: 4px 8px;
+      margin-right: 6px;
+      font-size: 13px;
+    }
+    .tab {
+      display: none;
+    }
+    .tab.active {
+      display: block;
+    }
+    .tab-buttons button {
+      margin-right: 5px;
+      background: #ccc;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .tab-buttons button.active {
+      background: #003366;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-    <div class="search-container">
-        <label for="search-input">Buscar Sección:</label>
-        <input type="text" id="search-input" placeholder="Escribe un número de sección">
-        <button id="search-button">Buscar</button>
+  <header>
+    <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
+    <img src="logo.png" alt="Logo" style="height: 30px;">
+  </header>
+  <div id="map"></div>
+  <div id="sidebar">
+    <h2 id="titulo-seccion">Sección 0000</h2>
+    <div id="info-seccion"></div>
+    <div class="tab-buttons">
+      <button onclick="mostrarTab('historial')" class="active">Historial</button>
+      <button onclick="mostrarTab('proyeccion')">Proyección</button>
+      <button onclick="mostrarTab('competencia')">Competencia</button>
     </div>
-
-    <div id="map"></div>
-
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Datos de la Sección</h2>
-            <table id="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>Sección</th>
-                        <th>D. Federal</th>
-                        <th>D. Local</th>
-                        <th>Lista Nominal</th>
-                        <th>Casillas</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-body"></tbody>
-            </table>
-            <div id="grafica-container"></div>
-        </div>
+    <div id="historial" class="tab active">
+      <canvas id="grafico-historial" width="300" height="200"></canvas>
     </div>
+    <div id="proyeccion" class="tab">
+      <canvas id="grafico-proyeccion" width="300" height="200"></canvas>
+    </div>
+    <div id="competencia" class="tab">
+      <canvas id="grafico-competencia" width="300" height="200"></canvas>
+    </div>
+  </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
-    <script>
-        var map = L.map('map').setView([21.1219, -101.6827], 13);
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const map = L.map('map').setView([21.12, -101.68], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+    // Cargar secciones desde GeoJSON
+    fetch('AT_Leon.geojson')
+      .then(res => res.json())
+      .then(data => {
+        L.geoJSON(data, {
+          onEachFeature: function(feature, layer) {
+            layer.on('click', function () {
+              const props = feature.properties;
+              document.getElementById('titulo-seccion').innerText = `Sección ${props.SECCION}`;
+              document.getElementById('info-seccion').innerHTML = `
+                <span class='badge'>DF ${props.DISTRITO_F}</span>
+                <span class='badge'>DL ${props.DISTRITO_L}</span>
+                <span class='badge'>LN ${props.LN_27}</span>`;
+              document.getElementById('sidebar').classList.add('active');
 
-        fetch('AT_Leon.geojson')
-            .then(response => response.json())
-            .then(data => {
-                var geoJsonLayer = L.geoJSON(data, {
-                    onEachFeature: function (feature, layer) {
-                        if (feature.properties) {
-                            layer.on('click', function () {
-                                var modal = document.getElementById("myModal");
-                                var span = document.getElementsByClassName("close")[0];
-                                modal.style.display = "block";
-
-                                var tablaBody = document.getElementById('tabla-body');
-                                tablaBody.innerHTML = ""; // Limpia la tabla
-                                var fila = document.createElement('tr');
-                                fila.innerHTML = "<td>" + feature.properties.SECCION + "</td>" +
-                                                 "<td>" + feature.properties.DISTRITO_F + "</td>" +
-                                                 "<td>" + feature.properties.DISTRITO_L + "</td>" +
-                                                 "<td>" + (feature.properties['24A_LN'] || 'No disponible') + "</td>" +
-                                                 "<td>" + (feature.properties.CASILLAS || 'No disponible') + "</td>";
-                                tablaBody.appendChild(fila);
-
-                                var graficaContainer = document.getElementById("grafica-container");
-                                graficaContainer.innerHTML = "<br><button onclick='showGraphs(\"" + feature.properties.SECCION + "\")'>Mostrar Gráficas</button>";
-                            });
-                        }
-                    }
-                }).addTo(map);
-
-                document.getElementById('search-button').addEventListener('click', function() {
-                    var searchTerm = document.getElementById('search-input').value;
-                    var foundFeature = null;
-                    geoJsonLayer.eachLayer(function(layer) {
-                        if (layer.feature.properties.SECCION == searchTerm) {
-                            foundFeature = layer;
-                        }
-                    });
-
-                    if (foundFeature) {
-                        foundFeature.setStyle({ color: 'red', weight: 5, fillColor: '#f03', fillOpacity: 0.3 });
-                        map.setView(foundFeature.getBounds().getCenter(), 14);
-                        foundFeature.openPopup();
-                    } else {
-                        alert('No se encontró la sección con el número ' + searchTerm);
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error al cargar el GeoJSON:', error);
+              // Simulación de actualización de gráficas
+              actualizarGraficas(props);
             });
+          }
+        }).addTo(map);
+      });
 
-        window.showGraphs = function (seccion) {
-            var graficaContainer = document.getElementById("grafica-container");
-            graficaContainer.innerHTML = "";
+    function mostrarTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('tab');
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
 
-            var container = document.createElement("div");
-            container.style.display = "grid";
-            container.style.gridTemplateColumns = "1fr 1fr";
-            container.style.gap = "20px";
+    let chartHist, chartProy, chartComp;
+    function actualizarGraficas(props) {
+      const seccion = props.SECCION;
+      // Historial ficticio
+      const historial = [props.VOTOS_18A, props.VOTOS_21A, props.VOTOS_24A];
+      const proy = [props.PROY_VOTOS_PAN_27A, props.PROY_VOTOS_PRI_27A, props.PROY_VOTOS_PVEM_27A, props.PROY_VOTOS_MORENA_27A];
+      const partidos = ['PAN', 'PRI', 'PVEM', 'MORENA'];
 
-            container.innerHTML += "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_historial/historial_" + seccion + ".png' width='300'><br>" +
-                                   "<p><strong>Explicación Historial:</strong> Este gráfico muestra los resultados de las elecciones de los tres principales partidos: PAN, PRI y MORENA en las elecciones de 2018, 2021 y 2024.</p></div>";
+      if (chartHist) chartHist.destroy();
+      if (chartProy) chartProy.destroy();
+      if (chartComp) chartComp.destroy();
 
-            container.innerHTML += "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_competencia/grafica_competencia_" + seccion + ".png' width='300'><br>" +
-                                   "<p><strong>Explicación Competencia:</strong> La competitividad electoral refleja lo parejo de la contienda: si la diferencia de votos entre el primer y segundo lugar fue pequeña en una sección, decimos que hubo alta competencia allí.</p></div>";
+      chartHist = new Chart(document.getElementById('grafico-historial'), {
+        type: 'bar',
+        data: {
+          labels: ['2018', '2021', '2024'],
+          datasets: [{
+            label: `Historial Votos - Sección ${seccion}`,
+            data: historial,
+            backgroundColor: '#4e79a7'
+          }]
+        },
+        options: { responsive: false }
+      });
 
-            container.innerHTML += "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_ganadores/ganadores_" + seccion + ".png' width='300'><br>" +
-                                   "<p><strong>Explicación Ganadores:</strong> Este gráfico muestra los ganadores de cada elección en las distintas secciones a través de las elecciones de 2018, 2021 y 2024.</p></div>";
+      chartProy = new Chart(document.getElementById('grafico-proyeccion'), {
+        type: 'bar',
+        data: {
+          labels: partidos,
+          datasets: [{
+            label: `Proyección 2027`,
+            data: proy,
+            backgroundColor: ['#005bac', '#c1121f', '#228b22', '#800000']
+          }]
+        },
+        options: { responsive: false }
+      });
 
-            container.innerHTML += "<div><img src='https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/Carpetas/graficas_proyeccion/proy_27_" + seccion + ".png' width='300'><br>" +
-                                   "<p><strong>Explicación Proyección:</strong> Este gráfico presenta la proyección futura de la participación electoral y votos obtenidos en la sección, basada en los resultados de las tres elecciones anteriores.</p></div>";
-
-            graficaContainer.appendChild(container);
-        };
-
-        var span = document.getElementsByClassName("close")[0];
-        span.onclick = function() {
-            var modal = document.getElementById("myModal");
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            var modal = document.getElementById("myModal");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-    </script>
+      chartComp = new Chart(document.getElementById('grafico-competencia'), {
+        type: 'pie',
+        data: {
+          labels: partidos,
+          datasets: [{
+            data: proy,
+            backgroundColor: ['#005bac', '#c1121f', '#228b22', '#800000']
+          }]
+        },
+        options: { responsive: false }
+      });
+    }
+  </script>
 </body>
 </html>
