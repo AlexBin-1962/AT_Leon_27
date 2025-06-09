@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APP Estratégica 2027</title>
+  <title>APP Estrategica 2027</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
   <style>
@@ -22,6 +22,25 @@
       justify-content: space-between;
     }
     header h1 { font-size: 18px; margin: 0; }
+    header .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    header input[type="number"] {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: none;
+      width: 80px;
+    }
+    header button {
+      background: white;
+      color: #003366;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
     #sidebar {
       position: fixed;
       right: 0;
@@ -65,7 +84,10 @@
 <body>
   <header>
     <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
-    <img src="logo.png" alt="Logo" style="height: 30px;">
+    <div class="search-box">
+      <input type="number" id="input-seccion" placeholder="Sección">
+      <button onclick="buscarSeccion()">Buscar</button>
+    </div>
   </header>
   <div id="map"></div>
   <div id="sidebar">
@@ -90,37 +112,24 @@
       <canvas id="grafico-ganador" width="300" height="200"></canvas>
     </div>
   </div>
-
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const partidos = ['PAN', 'PRI', 'PVEM', 'MORENA'];
-    const colores = {
-      PAN: '#005DAA',
-      PRI: '#c1121f',
-      PVEM: '#228B22',
-      MORENA: '#800000',
-      'N/D': '#999'
-    };
-
     const map = L.map('map').setView([21.12, -101.68], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    let seccionesGeojson = null;
+    let capasPorSeccion = {}; // Para referencia directa
 
     fetch('AT_Leon.geojson')
       .then(res => res.json())
       .then(data => {
+        seccionesGeojson = data;
         L.geoJSON(data, {
           onEachFeature: function(feature, layer) {
-            layer.on('click', function () {
-              const props = feature.properties;
-              document.getElementById('titulo-seccion').innerText = `Sección ${props.SECCION}`;
-              document.getElementById('info-seccion').innerHTML = `
-                <span class='badge'>DF ${props.DISTRITO_F}</span>
-                <span class='badge'>DL ${props.DISTRITO_L}</span>
-                <span class='badge'>LN ${props.LN_27}</span>`;
-              document.getElementById('sidebar').classList.add('active');
-              actualizarGraficas(props);
-            });
+            const props = feature.properties;
+            capasPorSeccion[props.SECCION] = { layer, props };
+            layer.on('click', () => mostrarSeccion(props, layer.getBounds().getCenter()));
           }
         }).addTo(map);
       });
@@ -133,8 +142,29 @@
       event.target.classList.add('active');
     }
 
-    let chartHist, chartProy, chartComp;
-    function actualizarGraficas(props) {
+    function buscarSeccion() {
+      const id = document.getElementById('input-seccion').value;
+      if (!id || !capasPorSeccion[id]) {
+        alert('Sección no encontrada');
+        return;
+      }
+      const { layer, props } = capasPorSeccion[id];
+      const centro = layer.getBounds().getCenter();
+      map.setView(centro, 15);
+      mostrarSeccion(props, centro);
+    }
+
+    function mostrarSeccion(props, coords) {
+      document.getElementById('titulo-seccion').innerText = `Sección ${props.SECCION}`;
+      document.getElementById('info-seccion').innerHTML = `
+        <span class='badge'>DF ${props.DISTRITO_F}</span>
+        <span class='badge'>DL ${props.DISTRITO_L}</span>
+        <span class='badge'>LN ${props.LN_27}</span>`;
+      document.getElementById('sidebar').classList.add('active');
+      actualizarGraficas(props);
+    }
+
+   function actualizarGraficas(props) {
       if (chartHist) chartHist.destroy();
       if (chartProy) chartProy.destroy();
       if (chartComp) chartComp.destroy();
@@ -214,6 +244,7 @@
         }
       });
     }
+
   </script>
 </body>
 </html>
