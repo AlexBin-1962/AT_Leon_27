@@ -147,17 +147,63 @@
       if (chartComp) chartComp.destroy();
 
       chartHist = new Chart(document.getElementById('grafico-historial'), {
-        type: 'bar',
-        data: {
-          labels: ['2018', '2021', '2024'],
-          datasets: [{
-            label: `Historial Votos - Sección ${seccion}`,
-            data: historial,
-            backgroundColor: '#4e79a7'
-          }]
+  type: 'line',
+  data: {
+    labels: ['2018', '2021', '2024'],
+    datasets: [
+      {
+        label: 'PAN',
+        data: [props['18A_PAN'], props['21A_PAN'], props['24A_PAN']],
+        borderColor: '#005DAA',
+        backgroundColor: '#005DAA',
+        fill: false
+      },
+      {
+        label: 'PRI',
+        data: [props['18A_PRI'], props['21A_PRI'], props['24A_PRI']],
+        borderColor: '#c1121f',
+        backgroundColor: '#c1121f',
+        fill: false
+      },
+      {
+        label: 'PVEM',
+        data: [props['18A_PVEM'], props['21A_PVEM'], props['24A_PVEM']],
+        borderColor: '#228B22',
+        backgroundColor: '#228B22',
+        fill: false
+      },
+      {
+        label: 'MORENA',
+        data: [props['18A_MORENA'], props['21A_MORENA'], props['24A_MORENA']],
+        borderColor: '#800000',
+        backgroundColor: '#800000',
+        fill: false
+      }
+    ]
+  },
+  options: {
+    responsive: false,
+    plugins: {
+      legend: { position: 'right' }
+    },
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: 'Votos por partido'
         },
-        options: { responsive: false }
-      });
+        beginAtZero: true
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Elección'
+        }
+      }
+    }
+  }
+});
+
 
       chartProy = new Chart(document.getElementById('grafico-proyeccion'), {
         type: 'bar',
