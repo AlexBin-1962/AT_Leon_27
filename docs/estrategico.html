@@ -96,7 +96,9 @@
     <div id="competencia" class="tab">
       <canvas id="grafico-competencia" width="300" height="200"></canvas>
     </div>
-  </div>
+    <div id="ganador" class="tab">
+      <canvas id="grafico-ganador" width="300" height="200"></canvas>
+    </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -147,61 +149,61 @@
       if (chartComp) chartComp.destroy();
 
       chartHist = new Chart(document.getElementById('grafico-historial'), {
-  type: 'line',
-  data: {
-    labels: ['2018', '2021', '2024'],
-    datasets: [
-      {
-        label: 'PAN',
-        data: [props['18A_PAN'], props['21A_PAN'], props['24A_PAN']],
-        borderColor: '#005DAA',
-        backgroundColor: '#005DAA',
-        fill: false
-      },
-      {
-        label: 'PRI',
-        data: [props['18A_PRI'], props['21A_PRI'], props['24A_PRI']],
-        borderColor: '#c1121f',
-        backgroundColor: '#c1121f',
-        fill: false
-      },
-      {
-        label: 'PVEM',
-        data: [props['18A_PVEM'], props['21A_PVEM'], props['24A_PVEM']],
-        borderColor: '#228B22',
-        backgroundColor: '#228B22',
-        fill: false
-      },
-      {
-        label: 'MORENA',
-        data: [props['18A_MORENA'], props['21A_MORENA'], props['24A_MORENA']],
-        borderColor: '#800000',
-        backgroundColor: '#800000',
-        fill: false
-      }
-    ]
-  },
-  options: {
-    responsive: false,
-    plugins: {
-      legend: { position: 'top' }
-    },
-    scales: {
-      y: {
-        title: {
-          display: true,
-          text: 'Votos por partido'
-        },
-        beginAtZero: true
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Elección'
-        }
-      }
-    }
-  }
+          type: 'line',
+          data: {
+            labels: ['2018', '2021', '2024'],
+            datasets: [
+              {
+                label: 'PAN',
+                data: [props['18A_PAN'], props['21A_PAN'], props['24A_PAN']],
+                borderColor: '#005DAA',
+                backgroundColor: '#005DAA',
+                fill: false
+              },
+              {
+                label: 'PRI',
+                data: [props['18A_PRI'], props['21A_PRI'], props['24A_PRI']],
+                borderColor: '#c1121f',
+                backgroundColor: '#c1121f',
+                fill: false
+              },
+              {
+                label: 'PVEM',
+                data: [props['18A_PVEM'], props['21A_PVEM'], props['24A_PVEM']],
+                borderColor: '#228B22',
+                backgroundColor: '#228B22',
+                fill: false
+              },
+              {
+                label: 'MORENA',
+                data: [props['18A_MORENA'], props['21A_MORENA'], props['24A_MORENA']],
+                borderColor: '#800000',
+                backgroundColor: '#800000',
+                fill: false
+              }
+            ]
+          },
+          options: {
+            responsive: false,
+            plugins: {
+              legend: { position: 'top' }
+            },
+            scales: {
+              y: {
+                title: {
+                  display: true,
+                  text: 'Votos por partido'
+                },
+                beginAtZero: true
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Elección'
+                }
+              }
+            }
+          }
 });
 
 
@@ -229,6 +231,66 @@
         },
         options: { responsive: false }
       });
+      const partidos = ['PAN', 'PRI', 'PVEM', 'MORENA'];
+const colores = {
+  PAN: '#005DAA',
+  PRI: '#c1121f',
+  PVEM: '#228B22',
+  MORENA: '#800000',
+  'N/D': '#999'
+};
+
+// Extraer los datos de ganador por año directamente desde el GeoJSON
+const ganadores = [
+  { año: '2018', partido: props.GANADOR_18A || 'N/D' },
+  { año: '2021', partido: props.GANADOR_21A || 'N/D' },
+  { año: '2024', partido: props.GANADOR_24A || 'N/D' }
+];
+
+// Valor ficticio solo para que Chart.js dibuje la barra
+const votosFicticios = [1, 1, 1];
+const coloresGanadores = ganadores.map(g => colores[g.partido] || '#999');
+const etiquetas = ganadores.map(g => g.año);
+
+const ctxGanador = document.getElementById('grafico-ganador').getContext('2d');
+if (window.chartGanador) window.chartGanador.destroy();
+
+window.chartGanador = new Chart(ctxGanador, {
+  type: 'bar',
+  data: {
+    labels: etiquetas,
+    datasets: [{
+      label: 'Partido ganador',
+      data: votosFicticios,
+      backgroundColor: coloresGanadores
+    }]
+  },
+  options: {
+    responsive: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            return `Ganador: ${ganadores[ctx.dataIndex].partido}`;
+          }
+        }
+      },
+      legend: { display: false }
+    },
+    scales: {
+      y: {
+        display: false
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Elección'
+        }
+      }
+    }
+  }
+});
+
     }
   </script>
 </body>
