@@ -101,10 +101,6 @@
     <div id="ganador" class="tab">
       <canvas id="grafico-ganador" width="300" height="200"></canvas>
     </div>
-    <div id="ganador" class="tab">
-      <canvas id="grafico-ganador" width="300" height="200"></canvas>
-    </div>
-
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -145,7 +141,7 @@
     let chartHist, chartProy, chartComp;
     function actualizarGraficas(props) {
       const seccion = props.SECCION;
-      // Historial ficticio
+      // Historial 
       const historial = [props.VOTOS_18A, props.VOTOS_21A, props.VOTOS_24A];
       const proy = [props.PROY_VOTOS_PAN_27A, props.PROY_VOTOS_PRI_27A, props.PROY_VOTOS_PVEM_27A, props.PROY_VOTOS_MORENA_27A];
       const partidos = ['PAN', 'PRI', 'PVEM', 'MORENA'];
@@ -237,13 +233,15 @@
         },
         options: { responsive: false }
       });
+
+      
       const partidos = ['PAN', 'PRI', 'PVEM', 'MORENA'];
-const colores = {
-  PAN: '#005DAA',
-  PRI: '#c1121f',
-  PVEM: '#228B22',
-  MORENA: '#800000',
-  'N/D': '#999'
+      const colores = {
+          PAN: '#005DAA',
+          PRI: '#c1121f',
+          PVEM: '#228B22',
+          MORENA: '#800000',
+          'N/D': '#999'
 };
 
 // Extraer los datos de ganador por año directamente desde el GeoJSON
