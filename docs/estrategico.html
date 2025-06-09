@@ -1,14 +1,13 @@
 
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>APP Estratégica 2027</title>
-<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css" rel="stylesheet"/>
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APP Estratégica 2027</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
+  <style>
     body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     #map { height: 100vh; }
 
@@ -97,40 +96,45 @@
   </style>
 </head>
 <body>
-<header>
-<h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
-<img alt="Logo" src="logo.png" style="height: 30px;"/>
-</header>
-<div id="map"></div>
-<div id="busqueda">
-<input id="input-seccion" placeholder="Sección..." type="text"/>
-<button onclick="buscarSeccion()">Buscar</button>
-</div>
-<div id="sidebar">
-<h2 id="titulo-seccion">Sección 0000</h2>
-<div id="info-seccion"></div>
-<div class="tab-buttons">
-<button class="active" onclick="mostrarTab('historial')">Historial</button>
-<button onclick="mostrarTab('proyeccion')">Proyección</button>
-<button onclick="mostrarTab('competencia')">Competencia</button>
-<button onclick="mostrarTab('ganador')">Ganador</button>
-</div>
-<div class="tab active" id="historial">
-<canvas height="200" id="grafico-historial" width="300"></canvas>
-</div>
-<div class="tab" id="proyeccion">
-<canvas height="200" id="grafico-proyeccion" width="300"></canvas>
-</div>
-<div class="tab" id="competencia">
-<canvas height="200" id="grafico-competencia" width="300"></canvas>
-</div>
-<div class="tab" id="ganador">
-<canvas height="200" id="grafico-ganador" width="300"></canvas>
-</div>
-</div>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+  <header>
+    <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
+    <img src="logo.png" alt="Logo" style="height: 30px;">
+  </header>
+
+  <div id="map"></div>
+
+  <div id="busqueda">
+    <input type="text" id="input-seccion" placeholder="Sección..." />
+    <button onclick="buscarSeccion()">Buscar</button>
+  </div>
+
+  <div id="sidebar">
+    <h2 id="titulo-seccion">Sección 0000</h2>
+    <div id="info-seccion"></div>
+    <div class="tab-buttons">
+      <button onclick="mostrarTab('historial')" class="active">Historial</button>
+      <button onclick="mostrarTab('proyeccion')">Proyección</button>
+      <button onclick="mostrarTab('competencia')">Competencia</button>
+      <button onclick="mostrarTab('ganador')">Ganador</button>
+    </div>
+
+    <div id="historial" class="tab active">
+      <canvas id="grafico-historial" width="300" height="200"></canvas>
+    </div>
+    <div id="proyeccion" class="tab">
+      <canvas id="grafico-proyeccion" width="300" height="200"></canvas>
+    </div>
+    <div id="competencia" class="tab">
+      <canvas id="grafico-competencia" width="300" height="200"></canvas>
+    </div>
+    <div id="ganador" class="tab">
+      <canvas id="grafico-ganador" width="300" height="200"></canvas>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
     const map = L.map('map').setView([21.12, -101.68], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -142,18 +146,6 @@
       .then(data => {
         L.geoJSON(data, {
           onEachFeature: function(feature, layer) {
-        const props = feature.properties;
-        capasPorSeccion[props.SECCION] = { layer, props };
-
-        // Agregar etiqueta con el número de sección
-        const centro = layer.getBounds().getCenter();
-        const etiqueta = L.marker(centro, {
-          icon: L.divIcon({
-            className: 'etiqueta-seccion',
-            html: `<div style="font-size:12px; color:#003366; font-weight:bold;">${props.SECCION}</div>`,
-            iconSize: [40, 20]
-          })
-        }).addTo(map);
             const props = feature.properties;
             capasPorSeccion[props.SECCION] = { layer, props };
             layer.on('click', function () {
