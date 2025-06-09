@@ -117,7 +117,7 @@
   <script>
     const map = L.map('map').setView([21.12, -101.68], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
+    let capaResaltada = null;
     let seccionesGeojson = null;
     let capasPorSeccion = {}; // Para referencia directa
 
@@ -143,16 +143,34 @@
     }
 
     function buscarSeccion() {
-      const id = document.getElementById('input-seccion').value;
-      if (!id || !capasPorSeccion[id]) {
-        alert('Sección no encontrada');
-        return;
-      }
-      const { layer, props } = capasPorSeccion[id];
-      const centro = layer.getBounds().getCenter();
-      map.setView(centro, 15);
-      mostrarSeccion(props, centro);
-    }
+  const id = document.getElementById('input-seccion').value;
+  if (!id || !capasPorSeccion[id]) {
+    alert('Sección no encontrada');
+    return;
+  }
+
+  const { layer, props } = capasPorSeccion[id];
+
+  // Restaurar estilo de la sección anterior (si existe)
+  if (capaResaltada) {
+    geojsonCapa.resetStyle(capaResaltada);
+  }
+
+  // Guardar y resaltar la nueva sección
+  capaResaltada = layer;
+  layer.setStyle({
+    color: 'red',
+    weight: 4,
+    fillOpacity: 0.5
+  });
+
+  // Hacer zoom a la sección
+  const centro = layer.getBounds().getCenter();
+  map.setView(centro, 15);
+
+  // Mostrar el panel lateral y gráficas
+  mostrarSeccion(props, centro);
+}
 
     function mostrarSeccion(props, coords) {
       document.getElementById('titulo-seccion').innerText = `Sección ${props.SECCION}`;
