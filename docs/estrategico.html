@@ -133,9 +133,6 @@
 <input id="input-seccion" placeholder="Sección..." type="text"/>
 <button onclick="buscarSeccion()">Buscar</button>
     
-    let etiquetasMostradas = false;
-    let etiquetasSeccion = [];
-
 </div>
 <div id="sidebar">
 <h2 id="titulo-seccion">Sección 0000</h2>
@@ -167,6 +164,9 @@
 
     let capasPorSeccion = {};
     let ultimaCapaResaltada = null;
+    let etiquetasMostradas = false;
+    let etiquetasSeccion = [];
+
 
     fetch('AT_Leon.geojson')
       .then(res => res.json())
