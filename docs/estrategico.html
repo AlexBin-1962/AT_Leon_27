@@ -9,6 +9,18 @@
 <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css" rel="stylesheet"/>
 <style>
+    .etiqueta-seccion {
+              font-size: 12px;
+              font-weight: bold;
+              color: #003366;
+              background: white;
+              border: 1px solid #ccc;
+              padding: 2px 4px;
+              border-radius: 4px;
+              text-align: center;
+            }
+
+    
     body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     #map { height: 100vh; }
 
@@ -120,6 +132,10 @@
 <div id="busqueda">
 <input id="input-seccion" placeholder="Sección..." type="text"/>
 <button onclick="buscarSeccion()">Buscar</button>
+    
+    let etiquetasMostradas = false;
+    let etiquetasSeccion = [];
+
 </div>
 <div id="sidebar">
 <h2 id="titulo-seccion">Sección 0000</h2>
@@ -196,6 +212,22 @@
       const { layer, props } = capasPorSeccion[id];
       const centro = layer.getBounds().getCenter();
       mostrarSeccion(props, centro);
+        if (!etiquetasMostradas) {
+          Object.values(capasPorSeccion).forEach(({ layer, props }) => {
+            const centro = layer.getBounds().getCenter();
+            const etiqueta = L.marker(centro, {
+              icon: L.divIcon({
+                className: 'etiqueta-seccion',
+                html: `<div>${props.SECCION}</div>`,
+                iconSize: [40, 20],
+                className: 'etiqueta-seccion'
+              })
+            }).addTo(map);
+            etiquetasSeccion.push(etiqueta);
+          });
+          etiquetasMostradas = true;
+        }
+
     }
 
     function mostrarTab(tabId) {
