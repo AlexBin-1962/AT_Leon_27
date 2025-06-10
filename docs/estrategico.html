@@ -1,13 +1,14 @@
 
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APP Estratégica 2027</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>APP Estratégica 2027</title>
+<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css" rel="stylesheet"/>
+<style>
     body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     #map { height: 100vh; }
 
@@ -94,72 +95,57 @@
       padding: 4px 10px;
     }
   
-<style>
-  .tab-buttons button:hover {
-    background-color: #005bac;
-    color: white;
-    transition: 0.3s ease-in-out;
-  }
-  #sidebar {
-    transition: all 0.3s ease-in-out;
-  }
-  #sidebar.active {
-    box-shadow: -2px 0 12px rgba(0, 0, 0, 0.2);
-  }
-  .tab-buttons button i {
-    margin-right: 4px;
-  }
-</style>
-
-</style>
+    .tab-buttons button:hover {
+      background-color: #005bac;
+      color: white;
+      transition: 0.3s ease-in-out;
+    }
+    #sidebar {
+      transition: all 0.3s ease-in-out;
+    }
+    #sidebar.active {
+      box-shadow: -2px 0 12px rgba(0, 0, 0, 0.2);
+    }
+    .tab-buttons button i {
+      margin-right: 4px;
+    }
+    </style>
 </head>
 <body>
-  <header>
-    <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
-    <img src="logo.png" alt="Logo" style="height: 30px;">
-  </header>
-
-  <div id="map"></div>
-
-  <div id="busqueda">
-    <input type="text" id="input-seccion" placeholder="Sección..." />
-    <button onclick="buscarSeccion()">Buscar</button>
-  </div>
-
-  <div id="sidebar">
-    <h2 id="titulo-seccion">Sección 0000</h2>
-    <div id="info-seccion"></div>
-    
-<div class="tab-buttons">
-  <button onclick="mostrarTab('historial')" class="active"><i class='ti ti-history'></i>Historial</button>
-  <button onclick="mostrarTab('proyeccion')"><i class='ti ti-chart-bar'></i>Proyección</button>
-  <button onclick="mostrarTab('competencia')"><i class='ti ti-target'></i>Competencia</button>
-  <button onclick="mostrarTab('ganador')"><i class='ti ti-trophy'></i>Ganador</button>
+<header>
+<h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
+<img alt="Logo" src="logo.png" style="height: 30px;"/>
+</header>
+<div id="map"></div>
+<div id="busqueda">
+<input id="input-seccion" placeholder="Sección..." type="text"/>
+<button onclick="buscarSeccion()">Buscar</button>
 </div>
-
-      <button onclick="mostrarTab('historial')" class="active">Historial</button>
-      <button onclick="mostrarTab('proyeccion')">Proyección</button>
-      <button onclick="mostrarTab('competencia')">Competencia</button>
-      <button onclick="mostrarTab('ganador')">Ganador</button>
-    </div>
-
-    <div id="historial" class="tab active">
-      <canvas id="grafico-historial" width="300" height="200"></canvas>
-    </div>
-    <div id="proyeccion" class="tab">
-      <canvas id="grafico-proyeccion" width="300" height="200"></canvas>
-    </div>
-    <div id="competencia" class="tab">
-      <canvas id="grafico-competencia" width="300" height="200"></canvas>
-    </div>
-    <div id="ganador" class="tab">
-      <canvas id="grafico-ganador" width="300" height="200"></canvas>
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
+<div id="sidebar">
+<h2 id="titulo-seccion">Sección 0000</h2>
+<div id="info-seccion"></div>
+<div class="tab-buttons">
+<button class="active" onclick="mostrarTab('historial')"><i class="ti ti-history"></i>Historial</button>
+<button onclick="mostrarTab('proyeccion')"><i class="ti ti-chart-bar"></i>Proyección</button>
+<button onclick="mostrarTab('competencia')"><i class="ti ti-target"></i>Competencia</button>
+<button onclick="mostrarTab('ganador')"><i class="ti ti-trophy"></i>Ganador</button>
+</div>
+<div class="tab active" id="historial">
+<canvas height="200" id="grafico-historial" width="300"></canvas>
+</div>
+<div class="tab" id="proyeccion">
+<canvas height="200" id="grafico-proyeccion" width="300"></canvas>
+</div>
+<div class="tab" id="competencia">
+<canvas height="200" id="grafico-competencia" width="300"></canvas>
+</div>
+<div class="tab" id="ganador">
+<canvas height="200" id="grafico-ganador" width="300"></canvas>
+</div>
+</div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
     const map = L.map('map').setView([21.12, -101.68], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
