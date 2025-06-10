@@ -93,7 +93,25 @@
     #busqueda button {
       padding: 4px 10px;
     }
-  </style>
+  
+<style>
+  .tab-buttons button:hover {
+    background-color: #005bac;
+    color: white;
+    transition: 0.3s ease-in-out;
+  }
+  #sidebar {
+    transition: all 0.3s ease-in-out;
+  }
+  #sidebar.active {
+    box-shadow: -2px 0 12px rgba(0, 0, 0, 0.2);
+  }
+  .tab-buttons button i {
+    margin-right: 4px;
+  }
+</style>
+
+</style>
 </head>
 <body>
   <header>
@@ -111,7 +129,14 @@
   <div id="sidebar">
     <h2 id="titulo-seccion">Sección 0000</h2>
     <div id="info-seccion"></div>
-    <div class="tab-buttons">
+    
+<div class="tab-buttons">
+  <button onclick="mostrarTab('historial')" class="active"><i class='ti ti-history'></i>Historial</button>
+  <button onclick="mostrarTab('proyeccion')"><i class='ti ti-chart-bar'></i>Proyección</button>
+  <button onclick="mostrarTab('competencia')"><i class='ti ti-target'></i>Competencia</button>
+  <button onclick="mostrarTab('ganador')"><i class='ti ti-trophy'></i>Ganador</button>
+</div>
+
       <button onclick="mostrarTab('historial')" class="active">Historial</button>
       <button onclick="mostrarTab('proyeccion')">Proyección</button>
       <button onclick="mostrarTab('competencia')">Competencia</button>
