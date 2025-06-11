@@ -142,6 +142,7 @@
 <button onclick="mostrarTab('proyeccion')"><i class="ti ti-chart-bar"></i>Proyección</button>
 <button onclick="mostrarTab('competencia')"><i class="ti ti-target"></i>Competencia</button>
 <button onclick="mostrarTab('ganador')"><i class="ti ti-trophy"></i>Ganador</button>
+<div id="explicacion-grafica" style="margin-top: 15px; font-size: 14px; color: #333;"></div>
 </div>
 <div class="tab active" id="historial">
 <canvas height="200" id="grafico-historial" width="300"></canvas>
@@ -236,6 +237,7 @@
       document.getElementById(tabId).classList.add('tab');
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
+      document.getElementById('explicacion-grafica').innerText = mensajesGraficas[tabId] || '';
     }
 
     let chartHist, chartProy, chartComp, chartGanador;
@@ -323,6 +325,15 @@
         }
       });
     }
+<script>
+  const mensajesGraficas = {
+    historial: "📊 Esta gráfica muestra la evolución histórica de los votos obtenidos por cada partido en las elecciones de 2018, 2021 y 2024 en la sección seleccionada.",
+    proyeccion: "📈 Esta gráfica presenta una estimación de los votos que cada partido podría obtener en 2027 con base en tendencias previas.",
+    competencia: "🥧 Esta gráfica tipo pastel representa la distribución proporcional proyectada del voto por partido para 2027.",
+    ganador: "🏆 Esta gráfica indica qué partido ganó en cada una de las elecciones previas (2018, 2021, 2024) en la sección seleccionada."
+  };
+</script>
+
   </script>
 </body>
 </html>
