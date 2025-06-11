@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="es">
@@ -132,7 +131,6 @@
 <div id="busqueda">
 <input id="input-seccion" placeholder="Sección..." type="text"/>
 <button onclick="buscarSeccion()">Buscar</button>
-    
 </div>
 <div id="sidebar">
 <h2 id="titulo-seccion">Sección 0000</h2>
@@ -142,7 +140,8 @@
 <button onclick="mostrarTab('proyeccion')"><i class="ti ti-chart-bar"></i>Proyección</button>
 <button onclick="mostrarTab('competencia')"><i class="ti ti-target"></i>Competencia</button>
 <button onclick="mostrarTab('ganador')"><i class="ti ti-trophy"></i>Ganador</button>
-</div>
+
+</div><div id="explicacion-grafica" style="margin-top: 15px; font-size: 14px; color: #333;"></div>
 <div class="tab active" id="historial">
 <canvas height="200" id="grafico-historial" width="300"></canvas>
 </div>
@@ -154,7 +153,7 @@
 </div>
 <div class="tab" id="ganador">
 <canvas height="200" id="grafico-ganador" width="300"></canvas>
-<div id="explicacion-grafica" style="margin-top: 15px; font-size: 14px; color: #333;"></div>
+
 </div>
 </div>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
