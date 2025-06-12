@@ -132,17 +132,48 @@
       top: 150px !important; /* o ajusta a 100px si lo quieres más abajo */
     }
     
-    </style>
-</head>
-<body>
     
+#btn-consultas {
+  position: fixed;
+  bottom: 100px;
+  left: 10px;
+  z-index: 1001;
+  padding: 6px 10px;
+  background-color: #004080;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+#filtro-panel {
+  position: fixed;
+  bottom: 20px;
+  left: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 1001;
+  font-size: 13px;
+}
+#filtro-panel label {
+  display: block;
+  margin-bottom: 4px;
+}
+#filtro-panel button {
+  margin-top: 6px;
+  margin-right: 4px;
+  font-size: 12px;
+}
+</style>
+</head>
+<body><button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
 <header>
 <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
 <img alt="Logo" src="logo.png" style="height: 30px;"/>
 </header>
-
-
-    
 <div id="map"></div>
 <div id="busqueda">
 <input id="input-seccion" placeholder="Sección..." type="text"/>
@@ -151,31 +182,25 @@
 <div id="sidebar">
 <h2 id="titulo-seccion">Sección 0000</h2>
 <div id="info-seccion"></div>
-    
 <div class="tab-buttons">
 <button class="active" onclick="mostrarTab('historial')"><i class="ti ti-history"></i>Historial</button>
 <button onclick="mostrarTab('competencia')"><i class="ti ti-target"></i>Competencia</button>
 <button onclick="mostrarTab('ganador')"><i class="ti ti-trophy"></i>Ganador</button>
-<br><br>
-<button onclick="mostrarTab('proyeccion')"style=""margin-top: 5px;><i class="ti ti-chart-bar"></i>Proyección</button>
+<br/><br/>
+<button 5px;="" margin-top:="" onclick="mostrarTab('proyeccion')" style=""><i class="ti ti-chart-bar"></i>Proyección</button>
 </div><div id="explicacion-grafica" style="margin-top: 15px; font-size: 14px; color: #333;"></div>
 <div class="tab active" id="historial">
 <canvas height="200" id="grafico-historial" width="300"></canvas>
 </div>
-
 <div class="tab" id="competencia">
 <canvas height="200" id="grafico-competencia" width="300"></canvas>
 </div>
-    
 <div class="tab" id="ganador">
-  <canvas height="200" id="grafico-ganador" width="300"></canvas>
+<canvas height="200" id="grafico-ganador" width="300"></canvas>
 </div>
-
 <div class="tab" id="proyeccion">
-  <canvas height="200" id="grafico-proyeccion" width="300"></canvas>
+<canvas height="200" id="grafico-proyeccion" width="300"></canvas>
 </div>
-
-    
 </div>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -354,6 +379,40 @@
         }
       });
     }
-  </script>
-</body>
+  
+function toggleFiltroPanel() {
+  const panel = document.getElementById('filtro-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+function aplicarFiltroPartido() {
+  const seleccionados = Array.from(document.querySelectorAll('input[name="filtro-partido"]:checked')).map(el => el.value);
+  if (seleccionados.length === 0) {
+    alert("Selecciona al menos un partido.");
+    return;
+  }
+  Object.values(capasPorSeccion).forEach(({ layer, props }) => {
+    const ganador = props.GANADOR_24A || '';
+    if (seleccionados.includes(ganador)) {
+      layer.setStyle({ opacity: 1, fillOpacity: 0.5 });
+    } else {
+      layer.setStyle({ opacity: 0.1, fillOpacity: 0.1 });
+    }
+  });
+}
+function limpiarFiltro() {
+  Object.values(capasPorSeccion).forEach(({ layer }) => {
+    layer.setStyle({ opacity: 1, fillOpacity: 0.5 });
+  });
+  document.querySelectorAll('input[name="filtro-partido"]').forEach(el => el.checked = false);
+}
+</script>
+<div id="filtro-panel" style="display:none;">
+<strong>Filtrar por partido:</strong><br/>
+<label><input name="filtro-partido" type="checkbox" value="PAN"/> PAN</label><br/>
+<label><input name="filtro-partido" type="checkbox" value="PRI"/> PRI</label><br/>
+<label><input name="filtro-partido" type="checkbox" value="PVEM"/> PVEM</label><br/>
+<label><input name="filtro-partido" type="checkbox" value="MORENA"/> MORENA</label><br/>
+<button onclick="aplicarFiltroPartido()">Aplicar</button>
+<button onclick="limpiarFiltro()">Limpiar</button>
+</div></body>
 </html>
