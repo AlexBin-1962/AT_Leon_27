@@ -167,10 +167,33 @@
   margin-right: 4px;
   font-size: 12px;
 }
+
+.toolbar {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+}
+.toolbar button {
+  padding: 6px 12px;
+  background-color: #005DAA;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.toolbar button:hover {
+  background-color: #003366;
+}
 </style>
 </head>
 <body><button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
 <header>
+<div class="toolbar">
+<button onclick="mostrarPanelFiltros()">Consultas</button>
+</div>
+
 <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
 <img alt="Logo" src="logo.png" style="height: 30px;"/>
 </header>
@@ -202,7 +225,15 @@
 <canvas height="200" id="grafico-proyeccion" width="300"></canvas>
 </div>
 </div>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js">
+
+function mostrarPanelFiltros() {
+  document.getElementById('filtro-panel').style.display = 'block';
+}
+function cerrarPanelFiltros() {
+  document.getElementById('filtro-panel').style.display = 'none';
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const map = L.map('map').setView([21.12, -101.68], 12);
