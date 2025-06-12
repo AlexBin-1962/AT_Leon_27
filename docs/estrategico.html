@@ -8,6 +8,21 @@
 <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css" rel="stylesheet"/>
 <style>
+    #toolbar button {
+  background-color: #004080;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.3s;
+}
+#toolbar button:hover {
+  background-color: #0066cc;
+}
+
+    
     .etiqueta-seccion {
               font-size: 12px;
               font-weight: bold;
@@ -169,11 +184,18 @@
 }
 </style>
 </head>
-<body><button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
+<body>
+
 <header>
-<h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
-<img alt="Logo" src="logo.png" style="height: 30px;"/>
+  <div style="display: flex; align-items: center;">
+    <img src="https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/docs/logo_estrategico.png" alt="Logo" style="height: 32px; margin-right: 10px;">
+  </div>
+  <div id="toolbar" style="display: flex; gap: 10px;">
+    <button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
+  </div>
 </header>
+
+    
 <div id="map"></div>
 <div id="busqueda">
 <input id="input-seccion" placeholder="Sección..." type="text"/>
