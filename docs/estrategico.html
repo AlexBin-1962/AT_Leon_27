@@ -180,15 +180,30 @@
   color: #003366;
   z-index: 1001;
 }
+.btn-toolbar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #003366;
+  margin-left: 10px;
+}
+.btn-toolbar:hover {
+  color: #005bac;
+}
 
 </style>
 </head>
-<body><button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
 <header>
 <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
 <img alt="Logo" src="https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/logo.png" style="height: 30px;"/>
     <div id="toolbar">
-  <span>🔧 Barra de herramientas</span>
+  <div id="toolbar">
+  <button onclick="toggleFiltroPanel()" class="btn-toolbar" title="Consultas">
+    <i class="ti ti-search"></i>
+  </button>
+</div>
+
 </div>
 </header>
 <div id="map"></div>
