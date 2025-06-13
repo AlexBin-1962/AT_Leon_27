@@ -167,12 +167,29 @@
   margin-right: 4px;
   font-size: 12px;
 }
+    #toolbar {
+  position: absolute;
+  top: 10px;
+  right: 80px; /* espacio para no tapar el logo */
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 2px dashed #ff5733; /* contorno visible */
+  font-weight: bold;
+  font-size: 13px;
+  color: #003366;
+  z-index: 1001;
+}
+
 </style>
 </head>
 <body><button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
 <header>
 <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
 <img alt="Logo" src="logo.png" style="height: 30px;"/>
+    <div id="toolbar">
+  <span>🔧 Barra de herramientas</span>
+</div>
 </header>
 <div id="map"></div>
 <div id="busqueda">
