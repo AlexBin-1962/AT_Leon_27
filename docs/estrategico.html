@@ -1,435 +1,104 @@
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>APP Estratégica 2027</title>
-<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css" rel="stylesheet"/>
-<style>
-    .etiqueta-seccion {
-              font-size: 12px;
-              font-weight: bold;
-              color: #003366;
-              background: white;
-              border: 1px solid #ccc;
-              padding: 2px 4px;
-              border-radius: 4px;
-              text-align: center;
-            }
-
-    
-    body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-    #map { height: 100vh; }
-
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: #003366;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Visualización Estratégica</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    #header {
+      background-color: #003366;
       color: white;
-      padding: 10px 20px;
-      z-index: 999;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 5px 15px;
     }
-    header h1 {
-      font-size: 18px;
-      margin: 0;
+    #logo-container img {
+      height: 40px;
     }
-
-    #sidebar {
-      position: fixed;
-      right: 0;
-      top: 60px;
-      width: 360px;
-      height: calc(100% - 60px);
-      background: #f9f9f9;
-      border-left: 1px solid #ddd;
-      box-shadow: -2px 0 4px rgba(0,0,0,0.1);
-      overflow-y: auto;
-      padding: 20px;
-      display: none;
-      z-index: 998;
+    #toolbar {
+      display: flex;
+      align-items: center;
     }
-    #sidebar.active { display: block; }
-
-    .badge {
-      display: inline-block;
-      background: #003366;
-      color: white;
-      border-radius: 4px;
-      padding: 4px 8px;
-      margin-right: 6px;
-      font-size: 13px;
-    }
-
-    #info-seccion .badge {
-      margin-bottom: 6px;
-      margin-right: 8px;
-      display: inline-block;
-    }
-
-
-    .tab {
-      display: none;
-    }
-    .tab.active {
-      display: block;
-    }
-    .tab-buttons button {
-      margin-right: 5px;
-      background: #ccc;
+    #toolbar button {
+      margin-left: 10px;
+      background: none;
       border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
       cursor: pointer;
     }
-    .tab-buttons button.active {
-      background: #003366;
-      color: white;
+    #toolbar button:hover i {
+      color: #00baff;
     }
-
-    #busqueda {
-      position: fixed;
-      top: 70px;
-      left: 10px;
+    #map {
+      height: calc(100vh - 50px);
+      width: 100%;
+    }
+    #filtro-panel {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 10px;
+      width: 250px;
+      padding: 15px;
       background: white;
-      padding: 10px;
-      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       z-index: 1000;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-
-    #busqueda input {
-      width: 100px;
-      padding: 4px;
-      margin-right: 4px;
+    #filtro-panel button.cerrar {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #666;
     }
-
-    #busqueda button {
-      padding: 4px 10px;
+    #filtro-panel button.cerrar:hover {
+      color: #000;
     }
-  
-    .tab-buttons button:hover {
-      background-color: #005bac;
-      color: white;
-      transition: 0.3s ease-in-out;
-    }
-    #sidebar {
-      transition: all 0.3s ease-in-out;
-    }
-    #sidebar.active {
-      box-shadow: -2px 0 12px rgba(0, 0, 0, 0.2);
-    }
-    .tab-buttons button i {
-      margin-right: 4px;
-    }
-
-    .leaflet-control-zoom {
-      top: 150px !important; /* o ajusta a 100px si lo quieres más abajo */
-    }
-    
-    
-#btn-consultas {
-  position: fixed;
-  bottom: 100px;
-  left: 10px;
-  z-index: 1001;
-  padding: 6px 10px;
-  background-color: #004080;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-#filtro-panel {
-  position: fixed;
-  bottom: 20px;
-  left: 10px;
-  background: white;
-  border: 1px solid #ccc;
-  padding: 10px 12px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  z-index: 1001;
-  font-size: 13px;
-}
-#filtro-panel label {
-  display: block;
-  margin-bottom: 4px;
-}
-#filtro-panel button {
-  margin-top: 6px;
-  margin-right: 4px;
-  font-size: 12px;
-}
-    #toolbar {
-  position: absolute;
-  top: 10px;
-  right: 80px; /* espacio para no tapar el logo */
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 2px dashed #ff5733; /* contorno visible */
-  font-weight: bold;
-  font-size: 13px;
-  color: #003366;
-  z-index: 1001;
-}
-
-</style>
+  </style>
 </head>
-<body><button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
-<header>
-<h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
-<img alt="Logo" src="https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/logo.png" style="height: 30px;"/>
+<body>
+  <div id="header">
+    <div id="logo-container">
+      <img src="https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/docs/logo_estrategico.png" alt="Logo Estrategico" />
+    </div>
     <div id="toolbar">
-  <span>🔧 Barra de herramientas</span>
-</div>
-</header>
-<div id="map"></div>
-<div id="busqueda">
-<input id="input-seccion" placeholder="Sección..." type="text"/>
-<button onclick="buscarSeccion()">Buscar</button>
-</div>
-<div id="sidebar">
-<h2 id="titulo-seccion">Sección 0000</h2>
-<div id="info-seccion"></div>
-<div class="tab-buttons">
-<button class="active" onclick="mostrarTab('historial')"><i class="ti ti-history"></i>Historial</button>
-<button onclick="mostrarTab('competencia')"><i class="ti ti-target"></i>Competencia</button>
-<button onclick="mostrarTab('ganador')"><i class="ti ti-trophy"></i>Ganador</button>
-<br/><br/>
-<button 5px;="" margin-top:="" onclick="mostrarTab('proyeccion')" style=""><i class="ti ti-chart-bar"></i>Proyección</button>
-</div><div id="explicacion-grafica" style="margin-top: 15px; font-size: 14px; color: #333;"></div>
-<div class="tab active" id="historial">
-<canvas height="200" id="grafico-historial" width="300"></canvas>
-</div>
-<div class="tab" id="competencia">
-<canvas height="200" id="grafico-competencia" width="300"></canvas>
-</div>
-<div class="tab" id="ganador">
-<canvas height="200" id="grafico-ganador" width="300"></canvas>
-</div>
-<div class="tab" id="proyeccion">
-<canvas height="200" id="grafico-proyeccion" width="300"></canvas>
-</div>
-</div>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+      <button onclick="toggleFiltroPanel()" title="Consultas">
+        <i class="ti ti-database" style="font-size: 20px; color: white;"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="filtro-panel">
+    <button class="cerrar" onclick="toggleFiltroPanel()">✖</button>
+    <p><strong>Panel de Consultas</strong></p>
+    <!-- Aquí se pueden agregar más botones de filtros -->
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
     const map = L.map('map').setView([21.12, -101.68], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-    let capasPorSeccion = {};
-    let ultimaCapaResaltada = null;
-    let etiquetasMostradas = false;
-    let etiquetasSeccion = [];
-
-
-    fetch('AT_Leon.geojson')
-      .then(res => res.json())
-      .then(data => {
-        L.geoJSON(data, {
-          onEachFeature: function(feature, layer) {
-            const props = feature.properties;
-            capasPorSeccion[props.SECCION] = { layer, props };
-            layer.on('click', function () {
-              const centro = layer.getBounds().getCenter();
-              mostrarSeccion(props, centro);
-            });
-          }
-        }).addTo(map);
-      });
-
-    function mostrarSeccion(props, centro) {
-      document.getElementById('titulo-seccion').innerText = `Sección ${props.SECCION}`;
-      document.getElementById('info-seccion').innerHTML = `
-        <span class='badge'>DF ${props.DISTRITO_F}</span>
-        <span class='badge'>DL ${props.DISTRITO_L}</span>
-        <span class='badge'>LN ${props.LN_27}</span>`;
-      document.getElementById('sidebar').classList.add('active');
-
-      if (ultimaCapaResaltada) {
-        ultimaCapaResaltada.setStyle({ color: '#3388ff', weight: 1 });
-      }
-
-      const capa = capasPorSeccion[props.SECCION].layer;
-      capa.setStyle({ color: '#ff0000', weight: 3 });
-      ultimaCapaResaltada = capa;
-
-      map.setView(centro, 15);
-      actualizarGraficas(props);
+    function toggleFiltroPanel() {
+      const panel = document.getElementById('filtro-panel');
+      panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
-
-    function buscarSeccion() {
-      const id = document.getElementById('input-seccion').value;
-      if (!id || !capasPorSeccion[id]) {
-        alert('Sección no encontrada');
-        return;
-      }
-      const { layer, props } = capasPorSeccion[id];
-      const centro = layer.getBounds().getCenter();
-      mostrarSeccion(props, centro);
-        if (!etiquetasMostradas) {
-          Object.values(capasPorSeccion).forEach(({ layer, props }) => {
-            const centro = layer.getBounds().getCenter();
-            const etiqueta = L.marker(centro, {
-              icon: L.divIcon({
-                className: 'etiqueta-seccion',
-                html: `<div>${props.SECCION}</div>`,
-                iconSize: [40, 20],
-                className: 'etiqueta-seccion'
-              })
-            }).addTo(map);
-            etiquetasSeccion.push(etiqueta);
-          });
-          etiquetasMostradas = true;
-        }
-
-    }
-
-  function mostrarTab(tabId) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
-  document.getElementById(tabId).classList.add('tab');
-  document.getElementById(tabId).classList.add('active');
-  event.target.classList.add('active');
-
-  // Mostrar texto explicativo según la pestaña activa
-  const explicacion = {
-    historial: '📊 Esta gráfica muestra la evolución de los votos por partido entre las elecciones 2018, 2021 y 2024.',
-    proyeccion: '📈 Esta gráfica estima el número de votos proyectados por partido para la elección de 2027.',
-    competencia: '🥇 Este gráfico circular refleja la proporción de fuerza electoral esperada entre partidos.',
-    ganador: '🏆 Muestra el partido que ganó en cada elección pasada por color dominante en la barra.'
-  };
-  document.getElementById('explicacion-grafica').innerText = explicacion[tabId] || '';
-}
-
-
-    let chartHist, chartProy, chartComp, chartGanador;
-
-    function actualizarGraficas(props) {
-      const partidos = ['PAN', 'PRI', 'PVEM', 'MORENA'];
-
-      if (chartHist) chartHist.destroy();
-      if (chartProy) chartProy.destroy();
-      if (chartComp) chartComp.destroy();
-      if (chartGanador) chartGanador.destroy();
-
-      chartHist = new Chart(document.getElementById('grafico-historial'), {
-        type: 'line',
-        data: {
-          labels: ['2018', '2021', '2024'],
-          datasets: [
-            { label: 'PAN', data: [props['18A_PAN'], props['21A_PAN'], props['24A_PAN']], borderColor: '#005DAA', fill: false },
-            { label: 'PRI', data: [props['18A_PRI'], props['21A_PRI'], props['24A_PRI']], borderColor: '#c1121f', fill: false },
-            { label: 'PVEM', data: [props['18A_PVEM'], props['21A_PVEM'], props['24A_PVEM']], borderColor: '#228B22', fill: false },
-            { label: 'MORENA', data: [props['18A_MORENA'], props['21A_MORENA'], props['24A_MORENA']], borderColor: '#800000', fill: false }
-          ]
-        },
-        options: { responsive: false, plugins: { legend: { position: 'top' } } }
-      });
-
-      chartProy = new Chart(document.getElementById('grafico-proyeccion'), {
-        type: 'bar',
-        data: {
-          labels: partidos,
-          datasets: [{
-            label: `Proyección 2027`,
-            data: [props.PROY_VOTOS_PAN_27A, props.PROY_VOTOS_PRI_27A, props.PROY_VOTOS_PVEM_27A, props.PROY_VOTOS_MORENA_27A],
-            backgroundColor: ['#005bac', '#c1121f', '#228b22', '#800000']
-          }]
-        },
-        options: { responsive: false }
-      });
-
-      chartComp = new Chart(document.getElementById('grafico-competencia'), {
-        type: 'pie',
-        data: {
-          labels: partidos,
-          datasets: [{
-            data: [props.PROY_VOTOS_PAN_27A, props.PROY_VOTOS_PRI_27A, props.PROY_VOTOS_PVEM_27A, props.PROY_VOTOS_MORENA_27A],
-            backgroundColor: ['#005bac', '#c1121f', '#228b22', '#800000']
-          }]
-        },
-        options: { responsive: false }
-      });
-
-      const ganadores = [
-        { año: '2018', partido: props.GANADOR_18A || 'N/D' },
-        { año: '2021', partido: props.GANADOR_21A || 'N/D' },
-        { año: '2024', partido: props.GANADOR_24A || 'N/D' }
-      ];
-      const votosFicticios = [1, 1, 1];
-      const colores = {
-        PAN: '#005DAA', PRI: '#c1121f', PVEM: '#228B22', MORENA: '#800000', 'N/D': '#999'
-      };
-
-      chartGanador = new Chart(document.getElementById('grafico-ganador'), {
-        type: 'bar',
-        data: {
-          labels: ganadores.map(g => g.año),
-          datasets: [{
-            label: 'Partido ganador',
-            data: votosFicticios,
-            backgroundColor: ganadores.map(g => colores[g.partido] || '#999')
-          }]
-        },
-        options: {
-          responsive: false,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  return `Ganador: ${ganadores[ctx.dataIndex].partido}`;
-                }
-              }
-            },
-            legend: { display: false }
-          },
-          scales: { y: { display: false } }
-        }
-      });
-    }
-  
-function toggleFiltroPanel() {
-  const panel = document.getElementById('filtro-panel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-function aplicarFiltroPartido() {
-  const seleccionados = Array.from(document.querySelectorAll('input[name="filtro-partido"]:checked')).map(el => el.value);
-  if (seleccionados.length === 0) {
-    alert("Selecciona al menos un partido.");
-    return;
-  }
-  Object.values(capasPorSeccion).forEach(({ layer, props }) => {
-    const ganador = props.GANADOR_24A || '';
-    if (seleccionados.includes(ganador)) {
-      layer.setStyle({ opacity: 1, fillOpacity: 0.5 });
-    } else {
-      layer.setStyle({ opacity: 0.1, fillOpacity: 0.1 });
-    }
-  });
-}
-function limpiarFiltro() {
-  Object.values(capasPorSeccion).forEach(({ layer }) => {
-    layer.setStyle({ opacity: 1, fillOpacity: 0.5 });
-  });
-  document.querySelectorAll('input[name="filtro-partido"]').forEach(el => el.checked = false);
-}
-</script>
-<div id="filtro-panel" style="display:none;">
-<strong>Filtrar por partido:</strong><br/>
-<label><input name="filtro-partido" type="checkbox" value="PAN"/> PAN</label><br/>
-<label><input name="filtro-partido" type="checkbox" value="PRI"/> PRI</label><br/>
-<label><input name="filtro-partido" type="checkbox" value="PVEM"/> PVEM</label><br/>
-<label><input name="filtro-partido" type="checkbox" value="MORENA"/> MORENA</label><br/>
-<button onclick="aplicarFiltroPartido()">Aplicar</button>
-<button onclick="limpiarFiltro()">Limpiar</button>
-</div></body>
+  </script>
+</body>
 </html>
