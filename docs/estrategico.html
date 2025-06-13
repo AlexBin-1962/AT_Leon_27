@@ -167,9 +167,9 @@
   margin-right: 4px;
   font-size: 12px;
 }
-#toolbar {
+    #toolbar {
   position: absolute;
-  top: 1px;
+  top: 10px;
   right: 80px; /* espacio para no tapar el logo */
   background-color: rgba(255, 255, 255, 0.8);
   padding: 6px 12px;
@@ -180,27 +180,16 @@
   color: #003366;
   z-index: 1001;
 }
-.btn-toolbar {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #003366;
-  margin-left: 10px;
-}
-.btn-toolbar:hover {
-  color: #005bac;
-}
 
 </style>
 </head>
+<body><button id="btn-consultas" onclick="toggleFiltroPanel()">Consultas</button>
 <header>
 <h1><i class="ti ti-chart-pie"></i> Análisis Estratégico 2027</h1>
 <img alt="Logo" src="https://raw.githubusercontent.com/AlexBin-1962/AT_Leon_27/main/logo.png" style="height: 30px;"/>
-<div id="toolbar">
-  <button onclick="toggleFiltroPanel()" class="btn-toolbar" title="Consultas">
-    <i class="ti ti-search"></i>
-  </button>
+    <div id="toolbar">
+    <button onclick="mostrarPanelConsultas()" title="Consultas" style="margin-left: 10px; cursor:pointer;">🔍</button>
+  <span>🔧 Barra de herramientas</span>
 </div>
 </header>
 <div id="map"></div>
@@ -443,5 +432,35 @@ function limpiarFiltro() {
 <label><input name="filtro-partido" type="checkbox" value="MORENA"/> MORENA</label><br/>
 <button onclick="aplicarFiltroPartido()">Aplicar</button>
 <button onclick="limpiarFiltro()">Limpiar</button>
-</div></body>
+</div>
+<!-- Panel lateral derecho para consultas -->
+<div id="panel-consultas" style="
+  position: fixed;
+  top: 60px;
+  right: 0;
+  width: 300px;
+  height: calc(100% - 60px);
+  background-color: #ffffff;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+  padding: 15px;
+  display: none;
+  z-index: 1001;
+  overflow-y: auto;
+  border-left: 4px solid #003366;
+">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h3 style="margin: 0; font-size: 16px; color: #003366;">Consultas disponibles</h3>
+    <button onclick="document.getElementById('panel-consultas').style.display='none'" style="background: none; border: none; font-size: 20px; cursor: pointer;">✖</button>
+  </div>
+  <hr>
+  <!-- Aquí se colocarán botones de consultas más adelante -->
+</div>
+
+<script>
+  function mostrarPanelConsultas() {
+    document.getElementById('panel-consultas').style.display = 'block';
+  }
+</script>
+
+</body>
 </html>
