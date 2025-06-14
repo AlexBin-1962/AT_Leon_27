@@ -167,7 +167,7 @@
   margin-right: 4px;
   font-size: 12px;
 }
-    #toolbar {
+#toolbar {
   position: absolute;
   top: 10px;
   right: 80px; /* espacio para no tapar el logo */
@@ -233,7 +233,7 @@
     fetch('AT_Leon.geojson')
       .then(res => res.json())
       .then(data => {
-        L.geoJSON(data, {
+        geojsonLayer = L.geoJSON(data, {
           onEachFeature: function(feature, layer) {
             const props = feature.properties;
             capasPorSeccion[props.SECCION] = { layer, props };
