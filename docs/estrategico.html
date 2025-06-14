@@ -569,51 +569,47 @@ function compararParticipacion() {
     etiquetasSeccion.push(label);
   });
 }
-    function mostrarParticipacionPorAnio() {
-  const seleccion = document.getElementById('seleccion-participacion').value;
-  if (!seleccion) return;
+function mostrarParticipacionAnual() {
+  let anio = document.getElementById("select-anio").value;
+  let campo = "";
 
-  const campo = {
-    '2018': 'PART_18A',
-    '2021': 'PART_21A',
-    '2024': 'PART_24A'
-  }[seleccion];
+  if (anio === "2018") campo = "PART_18A";
+  else if (anio === "2021") campo = "PART_21A";
+  else if (anio === "2024") campo = "PART_24A";
+  else {
+    console.error("Año no reconocido.");
+    return;
+  }
 
-  if (!campo || !window.capasPorSeccion) return;
+  console.log("Campo seleccionado:", campo);
 
-  // Limpiar estilos y etiquetas anteriores
-  Object.values(capasPorSeccion).forEach(({ layer }) => {
-    geojsonLayer.resetStyle(layer);
+  if (!geojsonLayer) {
+    console.error("geojsonLayer no está definido.");
+    return;
+  }
+
+  geojsonLayer.eachLayer(function (layer) {
+    let props = layer.feature.properties;
+    let valor = parseFloat(props[campo]);
+
+    console.log("Sección:", props.SECCION, "Valor participación:", valor);
+
+    if (isNaN(valor)) {
+      layer.setStyle({ fillColor: "#999", fillOpacity: 0.3 });
+    } else if (valor >= 50) {
+      layer.setStyle({ fillColor: "green", fillOpacity: 0.5 });
+    } else if (valor < 40) {
+      layer.setStyle({ fillColor: "red", fillOpacity: 0.5 });
+    } else {
+      layer.setStyle({ fillColor: "yellow", fillOpacity: 0.3 });
+    }
+
+    // Añadir o actualizar etiqueta
+    let label = `${props.SECCION}: ${valor.toFixed(1)}%`;
+    layer.bindTooltip(label, { permanent: true, direction: "center", className: "label-participacion" });
   });
-  ocultarEtiquetas();
-
-  etiquetasSeccion = []; // Reset
-
-  Object.values(capasPorSeccion).forEach(({ layer, props }) => {
-    const porcentaje = parseFloat(props[campo]);
-    if (isNaN(porcentaje)) return;
-
-    let color = '';
-    if (porcentaje >= 50) color = '#007f00'; // Verde fuerte
-    else if (porcentaje < 40) color = '#cc0000'; // Rojo suave
-    else return; // No resaltar si está entre 40 y 70
-
-    layer.setStyle({ fillColor: color, fillOpacity: 0.6 });
-
-    const center = layer.getBounds().getCenter();
-    const etiqueta = L.marker(center, {
-      icon: L.divIcon({
-        className: 'etiqueta-custom',
-        html: `<div style="background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid #888;">${porcentaje.toFixed(1)}%</div>`,
-        iconSize: [40, 20],
-        iconAnchor: [20, 10]
-      })
-    }).addTo(map);
-    etiquetasSeccion.push(etiqueta);
-  });
-
-  etiquetasMostradas = true;
 }
+
 
 </script>
 
