@@ -545,8 +545,8 @@ function compararParticipacion() {
 
   geojsonLayer.eachLayer(layer => {
     const props = layer.feature.properties;
-    const part18 = parseFloat(props.PARTICIPACION_18A) || 0;
-    const part24 = parseFloat(props.PARTICIPACION_24A) || 0;
+    const part18 = parseFloat(props.PART_18A) || 0;
+    const part24 = parseFloat(props.PART_24A) || 0;
     const diff = part24 - part18;
 
     // Estilo por diferencia
