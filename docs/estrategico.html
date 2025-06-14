@@ -457,35 +457,8 @@ function limpiarFiltro() {
 <script>
   function mostrarPanelConsultas() {
     document.getElementById('panel-consultas').style.display = 'block';
-    <button class="consulta-btn" onclick="mostrarGanadores()">Ganadores por Partido</button>
   }
 </script>
-<script>
-    // Función para resaltar secciones según partido ganador
-function mostrarGanadores() {
-  const colores = {
-    'PAN': '#005bac',
-    'PRI': '#c1121f',
-    'PVEM': '#228b22',
-    'MORENA': '#800000',
-    'N/D': '#999999'
-  };
 
-      capasPorSeccion.eachLayer(function(layer) {
-    const props = layer.feature.properties;
-    const ganador24 = props.GANADOR_24A || 'N/D';
-    const color = colores[ganador24] || '#999999';
-
-    layer.setStyle({
-      fillColor: color,
-      fillOpacity: 0.6,
-      color: '#222',
-      weight: 1
-    });
-  });
-
-  alert("Consulta aplicada: Secciones ganadas por partido en 2024.");
-}
-</script>
 </body>
 </html>
