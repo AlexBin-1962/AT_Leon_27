@@ -471,7 +471,7 @@ function mostrarGanadores() {
     'N/D': '#999999'
   };
 
-  geojsonLayer.eachLayer(function(layer) {
+      L.eachLayer(function(layer) {
     const props = layer.feature.properties;
     const ganador24 = props.GANADOR_24A || 'N/D';
     const color = colores[ganador24] || '#999999';
