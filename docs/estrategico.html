@@ -189,6 +189,7 @@
     <div id="toolbar">
     <button onclick="mostrarPanelConsultas()" title="Consultas" style="margin-left: 10px; cursor:pointer;">🔍</button>
     <button onclick="mostrarEtiquetasSecciones()"    title="Mostrar Etiquetas" class="toolbar-btn" >🗺️ </button>
+    <button onclick="ocultarEtiquetas()" title="Ocultar Etiquetas" class="toolbar-btn" >🚫 </button>
 
 </div>
 </header>
@@ -508,7 +509,17 @@ function mostrarEtiquetasSecciones() {
   etiquetasMostradas = true;
 }
 </script>
+<script>
 
+function ocultarEtiquetas() {
+  etiquetasSeccion.forEach(function (etiqueta) {
+    map.removeLayer(etiqueta);
+  });
+  etiquetasSeccion = [];
+  etiquetasMostradas = false;
+}
+
+</script>
 
 </body>
 </html>
