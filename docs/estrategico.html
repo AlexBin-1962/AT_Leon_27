@@ -483,10 +483,31 @@ function mostrarGanadores() {
       weight: 1
     });
   });
-
+mostrarEtiquetasSecciones();  
   alert("Consulta aplicada: Secciones ganadas por partido en 2024.");
 }
 </script>
+<script>
+function mostrarEtiquetasSecciones() {
+  if (etiquetasMostradas) return;
+
+  Object.values(capasPorSeccion).forEach(({ layer, props }) => {
+    const centro = layer.getBounds().getCenter();
+    const etiqueta = L.marker(centro, {
+      icon: L.divIcon({
+        className: 'etiqueta-seccion',
+        html: `<div>${props.SECCION}</div>`,
+        iconSize: [40, 20],
+        className: 'etiqueta-seccion'
+      })
+    }).addTo(map);
+    etiquetasSeccion.push(etiqueta);
+  });
+
+  etiquetasMostradas = true;
+}
+</script>
+
 
 </body>
 </html>
