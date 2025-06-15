@@ -467,7 +467,7 @@ function limpiarFiltro() {
   <!-- Aquí se colocarán botones de consultas más adelante -->
     <button class="consulta-btn" onclick="mostrarGanadores()">Ganadores por Partido - 2024</button>
     <button class="consulta-btn" onclick="compararParticipacion()">Participación 2018 vs 2024</button>
-    <select id="seleccion-participacion" onchange="mostrarParticipacionPorAnio()" title="Participación por elección" style="padding: 4px; border-radius: 6px;">
+    <select id="anioSelect" onchange="mostrarParticipacionPorAnio()" title="Participación por elección" style="padding: 4px; border-radius: 6px;">
           <option value="">Participación</option>
           <option value="2018">2018</option>
           <option value="2021">2021</option>
@@ -620,7 +620,7 @@ function compararParticipacion() {
 
 <script>
 function mostrarParticipacionPorAnio() {
-  const anioSeleccionado = document.getElementById("anioParticipacion").value;
+  const anioSeleccionado = document.getElementById("anioSelect").value;
   let campo = "";
   if (anioSeleccionado === "2018") campo = "PART_18A";
   else if (anioSeleccionado === "2021") campo = "PART_21A";
