@@ -568,49 +568,43 @@ function compararParticipacion() {
     }).addTo(map);
     etiquetasSeccion.push(label);
   });
-}
+}<script>
 function mostrarParticipacionPorAnio() {
-  let anio = document.getElementById("select-anio").value;
+  const anioSeleccionado = document.getElementById("anioParticipacion").value;
   let campo = "";
+  if (anioSeleccionado === "2018") campo = "PART_18A";
+  else if (anioSeleccionado === "2021") campo = "PART_21A";
+  else if (anioSeleccionado === "2024") campo = "PART_24A";
+  else return;
 
-  if (anio === "2018") campo = "PART_18A";
-  else if (anio === "2021") campo = "PART_21A";
-  else if (anio === "2024") campo = "PART_24A";
-  else {
-    console.error("Año no reconocido.");
-    return;
-  }
+  geojsonLayer.eachLayer(function(layer) {
+    const participacion = parseFloat(layer.feature.properties[campo]);
 
-  console.log("Campo seleccionado:", campo);
+    if (isNaN(participacion)) return;
 
-  if (!geojsonLayer) {
-    console.error("geojsonLayer no está definido.");
-    return;
-  }
+    let color = "gray";
+    if (participacion >= 50) color = "green";
+    else if (participacion <= 40) color = "red";
 
-  geojsonLayer.eachLayer(function (layer) {
-    let props = layer.feature.properties;
-    let valor = parseFloat(props[campo]);
+    layer.setStyle({ fillColor: color, fillOpacity: 0.5, color: "#666", weight: 1 });
 
-    console.log("Sección:", props.SECCION, "Valor participación:", valor);
+    const etiqueta = L.divIcon({
+      className: 'participacion-label',
+      html: participacion.toFixed(1) + '%',
+      iconSize: [50, 20]
+    });
 
-    if (isNaN(valor)) {
-      layer.setStyle({ fillColor: "#999", fillOpacity: 0.3 });
-    } else if (valor >= 50) {
-      layer.setStyle({ fillColor: "green", fillOpacity: 0.5 });
-    } else if (valor < 40) {
-      layer.setStyle({ fillColor: "red", fillOpacity: 0.5 });
-    } else {
-      layer.setStyle({ fillColor: "yellow", fillOpacity: 0.3 });
+    if (layer._etiqueta) {
+      map.removeLayer(layer._etiqueta);
     }
 
-    // Añadir o actualizar etiqueta
-    let label = `${props.SECCION}: ${valor.toFixed(1)}%`;
-    layer.bindTooltip(label, { permanent: true, direction: "center", className: "label-participacion" });
+    const centro = layer.getBounds().getCenter();
+    const marker = L.marker(centro, { icon: etiqueta }).addTo(map);
+    layer._etiqueta = marker;
   });
 }
-
 </script>
+
 
 </body>
 </html>
