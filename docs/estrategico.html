@@ -467,13 +467,12 @@ function limpiarFiltro() {
   <!-- Aquí se colocarán botones de consultas más adelante -->
     <button class="consulta-btn" onclick="mostrarGanadores()">Ganadores por Partido - 2024</button>
     <button class="consulta-btn" onclick="compararParticipacion()">Participación 2018 vs 2024</button>
-  <select id="anioParticipacion" onchange="mostrarParticipacionPorAnio()">
-  <option value="">Participación por elección</option>
-  <option value="2018">2018</option>
-  <option value="2021">2021</option>
-  <option value="2024">2024</option>
-</select>
-
+    <select id="seleccion-participacion" onchange="mostrarParticipacionPorAnio()" title="Participación por elección" style="padding: 4px; border-radius: 6px;">
+          <option value="">Participación</option>
+          <option value="2018">2018</option>
+          <option value="2021">2021</option>
+          <option value="2024">2024</option>
+    </select>
 
 </div>
 
@@ -569,7 +568,57 @@ function compararParticipacion() {
     }).addTo(map);
     etiquetasSeccion.push(label);
   });
-}<script>
+}
+    function mostrarParticipacionPorAnio() {
+  const seleccion = document.getElementById('seleccion-participacion').value;
+  if (!seleccion) return;
+
+  const campo = {
+    '2018': 'PART_18A',
+    '2021': 'PART_21A',
+    '2024': 'PART_24A'
+  }[seleccion];
+
+  if (!campo || !window.capasPorSeccion) return;
+
+  // Limpiar estilos y etiquetas anteriores
+  Object.values(capasPorSeccion).forEach(({ layer }) => {
+    geojsonLayer.resetStyle(layer);
+  });
+  ocultarEtiquetas();
+
+  etiquetasSeccion = []; // Reset
+
+  Object.values(capasPorSeccion).forEach(({ layer, props }) => {
+    const porcentaje = parseFloat(props[campo]);
+    if (isNaN(porcentaje)) return;
+
+    let color = '';
+    if (porcentaje >= 70) color = '#007f00'; // Verde fuerte
+    else if (porcentaje < 40) color = '#cc0000'; // Rojo suave
+    else return; // No resaltar si está entre 40 y 70
+
+    layer.setStyle({ fillColor: color, fillOpacity: 0.6 });
+
+    const center = layer.getBounds().getCenter();
+    const etiqueta = L.marker(center, {
+      icon: L.divIcon({
+        className: 'etiqueta-custom',
+        html: `<div style="background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid #888;">${porcentaje.toFixed(1)}%</div>`,
+        iconSize: [40, 20],
+        iconAnchor: [20, 10]
+      })
+    }).addTo(map);
+    etiquetasSeccion.push(etiqueta);
+  });
+
+  etiquetasMostradas = true;
+}
+
+</script>
+
+
+<script>
 function mostrarParticipacionPorAnio() {
   const anioSeleccionado = document.getElementById("anioParticipacion").value;
   let campo = "";
@@ -605,7 +654,6 @@ function mostrarParticipacionPorAnio() {
   });
 }
 </script>
-
 
 </body>
 </html>
