@@ -467,12 +467,13 @@ function limpiarFiltro() {
   <!-- Aquí se colocarán botones de consultas más adelante -->
     <button class="consulta-btn" onclick="mostrarGanadores()">Ganadores por Partido - 2024</button>
     <button class="consulta-btn" onclick="compararParticipacion()">Participación 2018 vs 2024</button>
-    <select id="participacion-anual" onchange="mostrarParticipacionPorAnio(this.value)">
-      <option value="">Selecciona un año</option>
-      <option value="2018">2018</option>
-      <option value="2021">2021</option>
-      <option value="2024">2024</option>
-    </select>
+  <select id="anioParticipacion" onchange="mostrarParticipacionPorAnio()">
+  <option value="">Participación por elección</option>
+  <option value="2018">2018</option>
+  <option value="2021">2021</option>
+  <option value="2024">2024</option>
+</select>
+
 
 </div>
 
